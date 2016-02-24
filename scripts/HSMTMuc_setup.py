@@ -4,6 +4,9 @@
 Created on Mon Feb 22 21:03:39 2016
 
 @author: ofer.guthmann
+
+This script should be placed in HSmtMuc\scripts folder
+and used to set-up the HSmtMuc.vcxproj file in the HSmtMuc\src directory
 """
 import os
 import os.path
@@ -20,11 +23,10 @@ isZ3Found = False
 
 if len(sys.argv) > 1:
     arg = sys.argv[1]
-    if z3DirName in arg:
-        z3path = arg[:arg.index(z3DirName)+len(z3DirName)]
-        if os.path.isdir(z3path):
-            print('found z3 dir using input arg')
-            isZ3Found = True
+	if os.path.isdir(arg):
+		z3path = arg
+		#print('found z3 dir using input arg')
+		isZ3Found = True
 elif os.name == osWin:
     if osWinPath in os.environ:
         pathVars = os.environ[osWinPath].split(os.pathsep)
@@ -32,7 +34,7 @@ elif os.name == osWin:
             if z3DirName in arg:
                 z3path = arg[:arg.index(z3DirName)+len(z3DirName)]
                 if os.path.isdir(z3path):
-                    print('found z3 dir using '+osWin + ' ' + osWinPath + ' env var')
+                   #print('found z3 dir using '+osWin + ' ' + osWinPath + ' env var')
                     isZ3Found = True
                     break
 if not isZ3Found:
