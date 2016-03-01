@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 #include "z3++.h"
-#include "utils.h"
+#include "Utils.h"
 #include "MucExtractor.h"
 #include <ctime>
 

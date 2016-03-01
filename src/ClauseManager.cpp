@@ -34,7 +34,7 @@ void ClauseManager::initClauses(solver& s) {
 
 }
 
-void ClauseManager::addClause(expr& constraint, solver& s) {
+void ClauseManager::addClause(expr constraint, solver& s) {
 	int idx = id2Constraint.size();
 	expr pi = Utils::get_ctx().bool_const(string("pmuc"+to_string(idx)).c_str());
 	id2Constraint.push_back(constraint);
@@ -52,7 +52,7 @@ vector<expr>& ClauseManager::getCurrAssumptions() {
 }
 
 
-cid ClauseManager::getClauseId(expr& assumption) {
+cid ClauseManager::getClauseId(expr assumption) {
 	if (eq(nopAssumption,assumption) || p2Id.find(assumption) == p2Id.end())
 		return CL_UNDEF;
 	return p2Id[assumption];

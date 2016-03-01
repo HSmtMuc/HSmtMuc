@@ -46,7 +46,7 @@ void FullAssignmentMananger::varFlip(vid id) {
 	setCurrentqAssumption(id, BoolAssignment[id]);
 }
 
-bool FullAssignmentMananger::getLitValue(expr& lit) { 
+bool FullAssignmentMananger::getLitValue(expr lit) { 
 	Var v(lit);
 	vid idx = Var2VarIdx[v];
 	if (lit.decl().decl_kind() == Z3_OP_NOT)

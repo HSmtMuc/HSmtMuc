@@ -20,7 +20,7 @@ public:
 	~PartialAssignmentMananger();
 	void setModel(model& m);
 	void varFlip(vid id);
-	bool getLitValue(expr& lit);
+	bool getLitValue(expr lit);
 	bool isClauseSat(cid id);
 	void updateModel();
 };

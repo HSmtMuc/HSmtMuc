@@ -20,7 +20,7 @@ class ClauseManager {
 	expr formula;
 
 
-	void addClause(expr& c, solver& s);
+	void addClause(expr c, solver& s);
 
 public:
 	expr nopAssumption;
@@ -28,7 +28,7 @@ public:
 	~ClauseManager();
 	void initClauses(solver& s);
 	int getNumConstraints();
-	cid getClauseId(expr& assumption);
+	cid getClauseId(expr assumption);
 	expr& getClauseAssumption(cid id);
 	expr& getClause(cid id);
 	expr& getOriginalClause(cid id);

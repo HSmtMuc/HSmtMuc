@@ -23,11 +23,11 @@ class Utils {
 	~Utils();
 public:
 	static context& get_ctx();
-	static expr and (const array<Z3_ast>& args);
+	static expr m_and (const array<Z3_ast>& args);
 	static expr parse_smtlib2_file(string fileName);
 	static expr parse_smtlib_file(string fileName);
 	static expr convert_to_cnf(const expr& e);
-	static expr and (const vector<Z3_ast>& args);
+	static expr m_and (const vector<Z3_ast>& args);
 
 };
 

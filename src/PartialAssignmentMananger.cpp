@@ -102,7 +102,7 @@ bool PartialAssignmentMananger::getValue(vid id) {
 	return val;
 }
 
-bool PartialAssignmentMananger::getLitValue(expr& lit) {
+bool PartialAssignmentMananger::getLitValue(expr lit) {
 	vid id = Var2VarIdx[Var(lit)];
 	if (BoolAssignment[id] == Undef) {
 		return getValue(id);

@@ -32,7 +32,7 @@ public:
 
 	virtual void setModel(model& m) = 0;
 	virtual void varFlip(vid id) = 0;
-	virtual bool getLitValue(expr& lit) = 0;
+	virtual bool getLitValue(expr lit) = 0;
 	virtual bool isClauseSat(cid id) = 0;
 	virtual void updateModel() = 0;
 

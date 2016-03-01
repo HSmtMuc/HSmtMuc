@@ -6,7 +6,7 @@ class Var {
 	expr e;
 public:
 	Var();
-	Var(expr& e);
+	Var(expr e);
 	~Var();
 	const expr& asExpr() const;
 

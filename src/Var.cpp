@@ -3,7 +3,7 @@
 
 Var::Var() : e(Utils::get_ctx()) {}
 
-Var::Var(expr& _e): e(_e) {
+Var::Var(expr _e): e(_e) {
 	if (_e.decl().decl_kind() == Z3_OP_NOT)
 		e = _e.arg(0);
 }

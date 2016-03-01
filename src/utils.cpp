@@ -7,11 +7,11 @@ context& Utils::get_ctx() {
 	return ctx;
 }
 
-expr Utils:: and(const vector<Z3_ast>& args) {
+expr Utils::m_and(const vector<Z3_ast>& args) {
 	return expr(get_ctx(), Z3_mk_and(get_ctx(), args.size(), &args[0]));
 }
 
-expr Utils::and(const array<Z3_ast>& args) {
+expr Utils::m_and(const array<Z3_ast>& args) {
 	return expr(get_ctx(), Z3_mk_and(get_ctx(), args.size(), args.ptr()));
 }
 
@@ -29,7 +29,7 @@ expr Utils::parse_smtlib_file(string fileName) {
 	}
 	if (n == 1)
 		return to_expr(ctx, args[0]);
-	return and(args);
+	return m_and(args);
 }
 
 expr Utils::convert_to_cnf(const expr& e) {
