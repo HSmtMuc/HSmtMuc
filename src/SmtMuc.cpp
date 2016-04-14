@@ -48,6 +48,19 @@ string getConfigName(const ArgParser& parser) {
 	return prefix + std::to_string(flippingTh);
 }
 
+void printLemmas(expr e) {
+	if (e.decl().decl_kind() == Z3_OP_PR_LEMMA || e.decl().decl_kind() == Z3_OP_PR_TH_LEMMA) {
+		std::cout << "Found Lemma " << e.decl().decl_kind() << ": " << e << std::endl;
+	}
+	if (e.decl().decl_kind() == Z3_OP_PR_HYPOTHESIS ) {
+		std::cout << "Found Hypothesis " << e.decl().decl_kind() << ": " << e << std::endl;
+	}
+	int n = e.num_args();
+	for (int i = 0; i < n; ++i) {
+		printLemmas(e.arg(i));
+	}
+}
+
 int main(int argc, char *argv[]) {
 	try {
 		ArgParser parser;
@@ -73,6 +86,8 @@ int main(int argc, char *argv[]) {
 		clock_t solveTime = std::clock();
 		s.check();
 		solveTime = std::clock() - solveTime;
+		expr p = s.proof();
+		printLemmas(p);
 
 		MucExtractor::Statistics stats = extractor.getStatistics();
 		//ofstream log;

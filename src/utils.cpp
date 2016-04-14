@@ -3,7 +3,9 @@
 
 
 context& Utils::get_ctx() {
-	static context ctx;
+	config cfg;
+	cfg.set("proof", true);
+	static context ctx(cfg);
 	return ctx;
 }
 
@@ -39,6 +41,30 @@ expr Utils::convert_to_cnf(const expr& e) {
 	g.add(e);
 	apply_result r = t(g);
 	return r[0].as_expr();
+}
+
+
+void Utils::checkCoreUnsat(vector<expr>& core) {
+	solver s(Utils::get_ctx());
+	for (expr c : core)
+		s.add(c);
+	check_result isSat = s.check();
+	assert(isSat == unsat);
+}
+
+bool Utils::checkCoreMinimal(vector<expr>& core) {
+	bool minimal = true;
+	for (expr c : core) {
+		solver s(Utils::get_ctx());
+		for (expr c1 : core) {
+			if (!eq(c1, c))
+				s.add(c1);
+		}
+		check_result isSat = s.check();
+		if (isSat == sat)
+			minimal = false;
+	}
+	return minimal;
 }
 
 Utils::Utils() {
