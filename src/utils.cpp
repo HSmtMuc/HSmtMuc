@@ -13,6 +13,10 @@ expr Utils::m_and(const vector<Z3_ast>& args) {
 	return expr(get_ctx(), Z3_mk_and(get_ctx(), args.size(), &args[0]));
 }
 
+expr Utils::m_or(const vector<Z3_ast>& args) {
+	return expr(get_ctx(), Z3_mk_or(get_ctx(), args.size(), &args[0]));
+}
+
 expr Utils::m_and(const array<Z3_ast>& args) {
 	return expr(get_ctx(), Z3_mk_and(get_ctx(), args.size(), args.ptr()));
 }
@@ -43,6 +47,15 @@ expr Utils::convert_to_cnf(const expr& e) {
 	return r[0].as_expr();
 }
 
+
+expr Utils::simplify(const expr& e) {
+	context& ctx = get_ctx();
+	tactic t = tactic(ctx, "simplify");
+	goal g(ctx);
+	g.add(e);
+	apply_result r = t(g);
+	return r[0].as_expr();
+}
 
 void Utils::checkCoreUnsat(vector<expr>& core) {
 	solver s(Utils::get_ctx());

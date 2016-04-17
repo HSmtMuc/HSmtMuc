@@ -9,7 +9,10 @@
 #include <vector>
 #include "z3++.h"
 #include "ClauseManager.h"
+#include <fstream>
 
+using std::endl;
+using std::ofstream;
 using namespace z3;
 using std::vector;
 
@@ -48,8 +51,10 @@ public:
 
 private:
 	void addLemmas(expr e, vector<expr>& res);
-	void initLiteralMapping();
+	void initLiteralMapping(const vector<expr>& clauses);
 	void insertVar(Var v);
+	void createCNFFile(const string& fileName, const vector<expr>& formula);
+	expr SucExtractor::sanitize(const expr& e);
 
 	expr formula;
 	ClauseManager cm;
