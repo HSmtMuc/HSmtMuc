@@ -9,16 +9,31 @@ context& Utils::get_ctx() {
 	return ctx;
 }
 
-expr Utils::m_and(const vector<Z3_ast>& args) {
-	return expr(get_ctx(), Z3_mk_and(get_ctx(), args.size(), &args[0]));
-}
+expr Utils::m_and(const vector<expr>& args) {
+	expr res = get_ctx().bool_val(true);
+	for (expr a : args) {
+		res = res && a;
+	}
 
-expr Utils::m_or(const vector<Z3_ast>& args) {
-	return expr(get_ctx(), Z3_mk_or(get_ctx(), args.size(), &args[0]));
+	return res;
 }
 
 expr Utils::m_and(const array<Z3_ast>& args) {
-	return expr(get_ctx(), Z3_mk_and(get_ctx(), args.size(), args.ptr()));
+	expr res = get_ctx().bool_val(true);
+	for (int i = 0; i < args.size(); ++i) {
+		res = res && args[i];
+	}
+
+	return res;
+}
+
+expr Utils::m_or(const vector<expr>& args) {
+	expr res = get_ctx().bool_val(false);
+	for (expr a : args) {
+		res = res || a;
+	}
+
+	return res;
 }
 
 expr Utils::parse_smtlib2_file(string fileName) {
@@ -40,7 +55,8 @@ expr Utils::parse_smtlib_file(string fileName) {
 
 expr Utils::convert_to_cnf(const expr& e) {
 	context& ctx = get_ctx();
-	tactic t = tactic(ctx, "simplify") & tactic(ctx, "tseitin-cnf") & tactic(ctx, "simplify");
+	//tactic t = tactic(ctx, "simplify") & tactic(ctx, "tseitin-cnf") & tactic(ctx, "simplify");
+	tactic t = tactic(ctx, "tseitin-cnf");
 	goal g(ctx);
 	g.add(e);
 	apply_result r = t(g);

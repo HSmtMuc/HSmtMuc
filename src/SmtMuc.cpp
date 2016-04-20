@@ -19,26 +19,6 @@ void printArgs(ArgParser parser) {
 	std::cout << "Is Rotate: \t" << (parser.Rotate() == 0 ? "False" : "True") << std::endl;
 }
 
-void checkCoreUnsat(vector<expr>& core) {
-	solver s(Utils::get_ctx());
-	for (expr c: core)
-		s.add(c);
-	check_result isSat = s.check();
-	assert(isSat == unsat);
-}
-
-void checkCoreMinimal(vector<expr>& core) {
-	for (expr c : core) {
-		solver s(Utils::get_ctx());
-		for (expr c1 : core) {
-			if (!eq(c1,c))
-				s.add(c1);
-		}
-		check_result isSat = s.check();
-		assert(isSat == sat);
-	}
-}
-
 string getConfigName(const ArgParser& parser) {
 	if (!parser.Rotate())
 		return "base";
@@ -47,19 +27,6 @@ string getConfigName(const ArgParser& parser) {
 	if (flippingTh < 0)
 		flippingTh = DEFAULT_FLIPPING_THRESHOLD;
 	return prefix + std::to_string(flippingTh);
-}
-
-void printLemmas(expr e) {
-	if (e.decl().decl_kind() == Z3_OP_PR_LEMMA || e.decl().decl_kind() == Z3_OP_PR_TH_LEMMA) {
-		std::cout << "Found Lemma " << e.decl().decl_kind() << ": " << e << std::endl;
-	}
-	if (e.decl().decl_kind() == Z3_OP_PR_HYPOTHESIS ) {
-		std::cout << "Found Hypothesis " << e.decl().decl_kind() << ": " << e << std::endl;
-	}
-	int n = e.num_args();
-	for (int i = 0; i < n; ++i) {
-		printLemmas(e.arg(i));
-	}
 }
 
 int main(int argc, char *argv[]) {

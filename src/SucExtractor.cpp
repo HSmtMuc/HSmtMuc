@@ -10,7 +10,6 @@ SucExtractor::SucExtractor(expr _formula, bool isHL) : formula(_formula), cm(for
 
 }
 
-
 vector<expr> SucExtractor::extract() {
 	statistics.totalTime = std::clock();
 
@@ -50,13 +49,27 @@ vector<expr> SucExtractor::extract() {
 	statistics.z3InitialCoreSize = core.size();
 	
 	vector<expr> clauses;
-	for (unsigned i = 0; i < core.size(); ++i)
-		clauses.push_back(cm.getClause(cm.getClauseId(core[i])));
+	for (unsigned i = 0; i < core.size(); ++i) {
+		expr clause = cm.getClause(cm.getClauseId(core[i]));
+		clauses.push_back(clause);
+	}
+	vector<expr> lemmas;
+	extractLemmas(s.proof(), lemmas);
 
-	addLemmas(s.proof(), clauses);
+	expr lemmasCNF = Utils::convert_to_cnf(Utils::m_and(lemmas));
+	if (lemmasCNF.decl().decl_kind() == Z3_OP_AND) {
+		for (int i = 0; i < lemmasCNF.num_args(); ++i) {
+			clauses.push_back(lemmasCNF.arg(i));
+		}
+	}
+	else {
+		clauses.push_back(lemmasCNF);
+	}
+	
+
 	initLiteralMapping(clauses);
 
-	createCNFFile("C:\\Users\\annat\\Documents\\Research\\SMT_MUC\\tmp.cnf", clauses);
+	createCNFFile("tmp.cnf", clauses);
 	//runSatMUC();
 	vector<expr> res;
 	statistics.totalTime = std::clock() - statistics.totalTime;
@@ -69,16 +82,14 @@ vector<expr> SucExtractor::extract() {
 SucExtractor::~SucExtractor() {
 }
 
-void SucExtractor::addLemmas(expr e, vector<expr>& res) {
-	if (e.decl().decl_kind() == Z3_OP_PR_TH_LEMMA) {
-		//std::cout << "Found Lemma " << e.decl().decl_kind() << ": " << e << std::endl;
+
+void SucExtractor::extractEquivalence(expr& e, vector<expr>& res) {
+	switch (e.arg(0).decl().decl_kind()) {
+	case Z3_OP_EQ:
 		res.push_back(e.arg(0));
-	}
-	if (e.decl().decl_kind() == Z3_OP_PR_REWRITE) {
-		assert(e.arg(0).decl().decl_kind() == Z3_OP_IFF);
+		break;
+	case Z3_OP_IFF:
 		assert(e.arg(0).num_args() == 2);
-		//std::cout << "Found REWRITE " << e.arg(0).decl().decl_kind() << ": " << e.arg(0) << std::endl;
-			
 		expr arg1(sanitize(e.arg(0).arg(0))), arg2(sanitize(e.arg(0).arg(1)));
 		stringstream arg1s, arg2s;
 		arg1s << arg1;
@@ -101,51 +112,47 @@ void SucExtractor::addLemmas(expr e, vector<expr>& res) {
 				res.push_back(!arg1 || arg2);
 				res.push_back(arg1 || !arg2);
 			}
-			//std::cout << e.arg(0).arg(0)<< " !!!!!!!!!!!!!!!!neq!!!!!!!!!!!!!!!! " << e.arg(0).arg(1) << endl;
 		}
 	}
-	if (e.decl().decl_kind() == Z3_OP_PR_SYMMETRY) {
-		assert(e.num_args() == 2);
-		//std::cout << "Found SYMMETRY " << e.arg(0).decl().decl_kind() << ": " << e.num_args() << std::endl;
+}
+void SucExtractor::extractSymmetry(expr& e, vector<expr>& res) {
+	assert(e.num_args() == 2);
+	expr arg1(sanitize(e.arg(0))), arg2(sanitize(e.arg(1)));
 
-		expr arg1(sanitize(e.arg(0))), arg2(sanitize(e.arg(1)));
+	res.push_back(!arg1 || arg2);
+	res.push_back(arg1 || !arg2);
+}
 
-		res.push_back(!arg1 || arg2);
-		res.push_back(arg1 || !arg2);
-	}
-	if (e.decl().decl_kind() == Z3_OP_PR_TRANSITIVITY) {
-		//std::cout << "Found TRANSITIVITY " << e.arg(0).decl().decl_kind() << ": " << e.num_args() <<" " <<e << std::endl;
-
-		expr arg1(sanitize(e.arg(0))), arg2(sanitize(e.arg(1))), arg3(sanitize(e.arg(2)));
-		vector<Z3_ast> args;
-		args.push_back(!arg1);
-		args.push_back(!arg2);
-		args.push_back(arg3);
-		res.push_back(Utils::m_or(args));
-	}
-	if (e.decl().decl_kind() == Z3_OP_PR_MONOTONICITY) {
-		std::cout << "Found MONOTONICITY " << e.num_args() << ": " << e << std::endl;
-	}
-	if (e.decl().decl_kind() == Z3_OP_PR_TRANSITIVITY_STAR) {
-		std::cout << "Found TRANSITIVITY_STAR " << e.num_args() << ": " << e << std::endl;
-	}
-	if (e.decl().decl_kind() == Z3_OP_PR_REFLEXIVITY) {
-		std::cout << "Found REFLEXIVITY " << e.num_args() << ": " << e << std::endl;
-	}
-	if (e.decl().decl_kind() == Z3_OP_PR_DISTRIBUTIVITY) {
-		std::cout << "Found DISTRIBUTIVITY " << e.num_args() << ": " << e << std::endl;
+void SucExtractor::extractImplication(expr& e, vector<expr>& res) {
+	expr lemma = sanitize(e.arg(e.num_args() - 1));
+	for (int i = 0; i < e.num_args() - 1; ++i) {
+		lemma = lemma || !sanitize(e.arg(i));
 	}
 
-	if (e.decl().decl_kind() == Z3_OP_PR_REWRITE_STAR) {
-		std::cout << "Found REWRITE_STAR " << e.num_args() << ": " << e << std::endl;
-	}
-	if (e.decl().decl_kind() == Z3_OP_PR_COMMUTATIVITY) {
-		std::cout << "Found COMMUTATIVITY " << e.num_args() << ": " << e << std::endl;
+	res.push_back(lemma);
+}
+
+void SucExtractor::extractLemmas(expr e, vector<expr>& res) {
+
+	switch (e.decl().decl_kind()) {
+	case Z3_OP_PR_REFLEXIVITY:
+	case Z3_OP_PR_REWRITE:
+	case Z3_OP_PR_DISTRIBUTIVITY:
+	case Z3_OP_PR_COMMUTATIVITY:
+		extractEquivalence(e, res);
+		break;
+	case Z3_OP_PR_SYMMETRY:
+		extractSymmetry(e, res);
+		break;
+	case Z3_OP_PR_TRANSITIVITY:
+	case Z3_OP_PR_MONOTONICITY:
+	case Z3_OP_PR_TH_LEMMA:
+		extractImplication(e, res);
 	}
 
 	int n = e.num_args();
 	for (int i = 0; i < n; ++i) {
-		addLemmas(e.arg(i),res);
+		extractLemmas(e.arg(i),res);
 	}
 }
 
@@ -182,7 +189,6 @@ void SucExtractor::createCNFFile(const string& fileName, const vector<expr>& cla
 	CNFfile << "p cnf " << Var2VarIdx.size() << " " << clauses.size() << endl;
 
 	for (expr c : clauses) {
-		std::cout << c << std::endl;
 		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single literal
 			expr lit = c;
 			CNFfile << (lit.decl().decl_kind() == Z3_OP_NOT ? "-" : "") << Var2VarIdx[Var(lit)] << " 0" << endl;
@@ -238,6 +244,8 @@ expr SucExtractor::sanitize(const expr& e) {
 	case Z3_OP_PR_TH_LEMMA:
 	case Z3_OP_PR_HYPER_RESOLVE:
 		return e.arg(e.num_args() - 1);
+	//case Z3_OP_IFF:
+		//std::cout << "iff " << e << endl;
 	default:
 		return e;
 	}

@@ -50,11 +50,15 @@ public:
 
 
 private:
-	void addLemmas(expr e, vector<expr>& res);
 	void initLiteralMapping(const vector<expr>& clauses);
 	void insertVar(Var v);
 	void createCNFFile(const string& fileName, const vector<expr>& formula);
-	expr SucExtractor::sanitize(const expr& e);
+	expr sanitize(const expr& e);
+
+	void extractLemmas(expr e, vector<expr>& res);
+	void extractEquivalence(expr& e, vector<expr>& res);
+	void extractSymmetry(expr& e, vector<expr>& res);
+	void extractImplication(expr& e, vector<expr>& res);
 
 	expr formula;
 	ClauseManager cm;
