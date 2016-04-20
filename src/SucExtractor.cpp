@@ -4,10 +4,10 @@
 
 using std::stringstream;
 
-string hmuc = "C:\\Users\\annat\\Documents\\Research\\SMT_MUC\\hmuc\\x64\\Release\\hmuc.exe";
+string hmuc = "..\\build\\hmuc.exe";
+string cnfFile = "..\\temp\\temp.cnf";
 
 SucExtractor::SucExtractor(expr _formula, bool isHL) : formula(_formula), cm(formula, isHL), statistics(isHL) {
-
 }
 
 vector<expr> SucExtractor::extract() {
@@ -66,11 +66,10 @@ vector<expr> SucExtractor::extract() {
 		clauses.push_back(lemmasCNF);
 	}
 	
-
 	initLiteralMapping(clauses);
 
-	createCNFFile("tmp.cnf", clauses);
-	//runSatMUC();
+	createCNFFile(cnfFile, clauses);
+	//vector<expr> res = runSatMUC();
 	vector<expr> res;
 	statistics.totalTime = std::clock() - statistics.totalTime;
 
@@ -244,8 +243,6 @@ expr SucExtractor::sanitize(const expr& e) {
 	case Z3_OP_PR_TH_LEMMA:
 	case Z3_OP_PR_HYPER_RESOLVE:
 		return e.arg(e.num_args() - 1);
-	//case Z3_OP_IFF:
-		//std::cout << "iff " << e << endl;
 	default:
 		return e;
 	}
