@@ -73,12 +73,12 @@ expr Utils::simplify(const expr& e) {
 	return r[0].as_expr();
 }
 
-void Utils::checkCoreUnsat(vector<expr>& core) {
+bool Utils::checkCoreUnsat(vector<expr>& core) {
 	solver s(Utils::get_ctx());
 	for (expr c : core)
 		s.add(c);
 	check_result isSat = s.check();
-	assert(isSat == unsat);
+	return isSat == unsat;
 }
 
 bool Utils::checkCoreMinimal(vector<expr>& core) {
@@ -90,7 +90,7 @@ bool Utils::checkCoreMinimal(vector<expr>& core) {
 				s.add(c1);
 		}
 		check_result isSat = s.check();
-		if (isSat == sat)
+		if (isSat != sat)
 			minimal = false;
 	}
 	return minimal;

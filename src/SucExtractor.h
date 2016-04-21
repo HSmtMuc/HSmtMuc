@@ -31,12 +31,14 @@ public:
 		unsigned problemSize;
 		unsigned z3InitialCoreSize;
 		unsigned smallCoreSize;
+		bool isUnsat;
 		bool isMinimal;
 		time_t z3AssumtionsInitialSolveTime;
 		time_t totalTime;
 
 		Statistics(bool _hl)
-			: hl(_hl), problemSize(0), z3InitialCoreSize(0), smallCoreSize(0), isMinimal(false), z3AssumtionsInitialSolveTime(0), totalTime(0) {}
+			: hl(_hl), problemSize(0), z3InitialCoreSize(0), smallCoreSize(0), 
+				isUnsat(false), isMinimal(false), z3AssumtionsInitialSolveTime(0), totalTime(0) {}
 
 		friend std::ostream & operator<<(std::ostream & out, Statistics const & s);
 	};
@@ -52,13 +54,16 @@ public:
 private:
 	void initLiteralMapping(const vector<expr>& clauses);
 	void insertVar(Var v);
-	void createCNFFile(const string& fileName, const vector<expr>& formula);
-	expr sanitize(const expr& e);
+
+	void createCNFFile(const vector<expr>& formula);
+	vector<expr> runSatMUC(const vector<expr>& originalClauses);
+	vector<expr> parseHmucRes(const vector<expr>& originalClauses);
 
 	void extractLemmas(expr e, vector<expr>& res);
 	void extractEquivalence(expr& e, vector<expr>& res);
 	void extractSymmetry(expr& e, vector<expr>& res);
 	void extractImplication(expr& e, vector<expr>& res);
+	expr sanitize(const expr& e);
 
 	expr formula;
 	ClauseManager cm;

@@ -30,7 +30,7 @@ public:
 	static expr m_and(const vector<expr>& args);
 	static expr m_and(const array<Z3_ast>& args);
 	static expr m_or(const vector<expr>& args);
-	static void checkCoreUnsat(vector<expr>& core);
+	static bool checkCoreUnsat(vector<expr>& core);
 	static bool checkCoreMinimal(vector<expr>& core);
 };
 

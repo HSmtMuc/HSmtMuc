@@ -3,9 +3,12 @@
 #include <iostream>
 
 using std::stringstream;
+using std::system;
+using std::ifstream;
 
 string hmuc = "..\\build\\hmuc.exe";
 string cnfFile = "..\\temp\\temp.cnf";
+string hmucResFile = "..\\temp\\hmuc_res";
 
 SucExtractor::SucExtractor(expr _formula, bool isHL) : formula(_formula), cm(formula, isHL), statistics(isHL) {
 }
@@ -38,10 +41,10 @@ vector<expr> SucExtractor::extract() {
 		vector<expr> res;
 		res.push_back(formula);
 		statistics.problemSize = 1;
-		statistics.smallCoreSize = 1;
 		statistics.z3InitialCoreSize = 1;
+		statistics.isUnsat = true;
 		statistics.isMinimal = true;
-		statistics.isMinimal = Utils::checkCoreMinimal(res);
+		statistics.totalTime = std::clock() - statistics.totalTime;
 		return res;
 	}
 
@@ -49,9 +52,11 @@ vector<expr> SucExtractor::extract() {
 	statistics.z3InitialCoreSize = core.size();
 	
 	vector<expr> clauses;
+	vector<expr> originalClauses;
 	for (unsigned i = 0; i < core.size(); ++i) {
 		expr clause = cm.getClause(cm.getClauseId(core[i]));
 		clauses.push_back(clause);
+		originalClauses.push_back(clause);
 	}
 	vector<expr> lemmas;
 	extractLemmas(s.proof(), lemmas);
@@ -68,19 +73,112 @@ vector<expr> SucExtractor::extract() {
 	
 	initLiteralMapping(clauses);
 
-	createCNFFile(cnfFile, clauses);
-	//vector<expr> res = runSatMUC();
-	vector<expr> res;
+	createCNFFile(clauses);
+	vector<expr> res = runSatMUC(originalClauses);
 	statistics.totalTime = std::clock() - statistics.totalTime;
-
+	
+	statistics.smallCoreSize = res.size();
+	statistics.isUnsat = Utils::checkCoreUnsat(res);
 	statistics.isMinimal = Utils::checkCoreMinimal(res);
-	//Utils::checkCoreUnsat(res);
 	return res;
 }
 
 SucExtractor::~SucExtractor() {
 }
 
+
+void SucExtractor::initLiteralMapping(const vector<expr>& clauses) {
+	for (expr c : clauses) {
+		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single literal
+			expr lit = c;
+			insertVar(Var(lit));
+			continue;
+		}
+		for (unsigned i = 0; i < c.num_args(); ++i) {
+			expr lit = c.arg(i);
+			insertVar(Var(lit));
+		}
+	}
+}
+
+void SucExtractor::insertVar(Var v) {
+	if (Var2VarIdx.find(v) != Var2VarIdx.end())
+		return;
+	static vid curr = 1;
+	Var2VarIdx[v] = curr;
+	curr++;
+}
+
+
+/*
+	Create a Dimacs CNF file
+*/
+void SucExtractor::createCNFFile(const vector<expr>& clauses) {
+	ofstream CNFfile;
+	CNFfile.open(cnfFile, std::ios::out);
+	CNFfile << "p cnf " << Var2VarIdx.size() << " " << clauses.size() << endl;
+
+	for (expr c : clauses) {
+		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single literal
+			expr lit = c;
+			CNFfile << (lit.decl().decl_kind() == Z3_OP_NOT ? "-" : "") << Var2VarIdx[Var(lit)] << " 0" << endl;
+			continue;
+		}
+		for (unsigned i = 0; i < c.num_args(); ++i) {
+			expr lit = c.arg(i);
+			CNFfile << (lit.decl().decl_kind() == Z3_OP_NOT ? "-" : "") << Var2VarIdx[Var(lit)] << " ";
+		}
+		CNFfile << "0" << endl;
+	}
+	CNFfile.close();
+}
+
+vector<expr> SucExtractor::runSatMUC(const vector<expr>& originalClauses) {
+	std::system(string(hmuc+" -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
+	return parseHmucRes(originalClauses);
+}
+
+vector<expr> SucExtractor::parseHmucRes(const vector<expr>& originalClauses) {
+	vector<expr> res;
+	ifstream file(hmucResFile);
+	string line;
+	while (std::getline(file, line)) {
+		if (line.find("v ") == 0) {
+			stringstream stream(line.substr(2));
+			while (stream) {
+				int n;
+				stream >> n;
+				if (n && n <= originalClauses.size()) //ignore lemmas;
+					res.push_back(originalClauses[n - 1]);
+			}
+			break;
+		}
+	}
+	return res;
+}
+
+void SucExtractor::extractLemmas(expr e, vector<expr>& res) {
+	switch (e.decl().decl_kind()) {
+	case Z3_OP_PR_REFLEXIVITY:
+	case Z3_OP_PR_REWRITE:
+	case Z3_OP_PR_DISTRIBUTIVITY:
+	case Z3_OP_PR_COMMUTATIVITY:
+		extractEquivalence(e, res);
+		break;
+	case Z3_OP_PR_SYMMETRY:
+		extractSymmetry(e, res);
+		break;
+	case Z3_OP_PR_TRANSITIVITY:
+	case Z3_OP_PR_MONOTONICITY:
+	case Z3_OP_PR_TH_LEMMA:
+		extractImplication(e, res);
+	}
+
+	int n = e.num_args();
+	for (int i = 0; i < n; ++i) {
+		extractLemmas(e.arg(i), res);
+	}
+}
 
 void SucExtractor::extractEquivalence(expr& e, vector<expr>& res) {
 	switch (e.arg(0).decl().decl_kind()) {
@@ -129,77 +227,6 @@ void SucExtractor::extractImplication(expr& e, vector<expr>& res) {
 	}
 
 	res.push_back(lemma);
-}
-
-void SucExtractor::extractLemmas(expr e, vector<expr>& res) {
-
-	switch (e.decl().decl_kind()) {
-	case Z3_OP_PR_REFLEXIVITY:
-	case Z3_OP_PR_REWRITE:
-	case Z3_OP_PR_DISTRIBUTIVITY:
-	case Z3_OP_PR_COMMUTATIVITY:
-		extractEquivalence(e, res);
-		break;
-	case Z3_OP_PR_SYMMETRY:
-		extractSymmetry(e, res);
-		break;
-	case Z3_OP_PR_TRANSITIVITY:
-	case Z3_OP_PR_MONOTONICITY:
-	case Z3_OP_PR_TH_LEMMA:
-		extractImplication(e, res);
-	}
-
-	int n = e.num_args();
-	for (int i = 0; i < n; ++i) {
-		extractLemmas(e.arg(i),res);
-	}
-}
-
-void SucExtractor::initLiteralMapping(const vector<expr>& clauses) {
-	for (expr c : clauses) {
-		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single literal
-			expr lit = c;
-			insertVar(Var(lit));
-			continue;
-		}
-		for (unsigned i = 0; i < c.num_args(); ++i) {
-			expr lit = c.arg(i);
-			insertVar(Var(lit));
-		}
-	}
-}
-
-
-void SucExtractor::insertVar(Var v) {
-	if (Var2VarIdx.find(v) != Var2VarIdx.end())
-		return;
-	static vid curr = 1;
-	Var2VarIdx[v] = curr;
-	curr++;
-}
-
-
-/*
-	Create a Dimacs CNF file
-*/
-void SucExtractor::createCNFFile(const string& fileName, const vector<expr>& clauses) {
-	ofstream CNFfile;
-	CNFfile.open(fileName, std::ios::out);
-	CNFfile << "p cnf " << Var2VarIdx.size() << " " << clauses.size() << endl;
-
-	for (expr c : clauses) {
-		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single literal
-			expr lit = c;
-			CNFfile << (lit.decl().decl_kind() == Z3_OP_NOT ? "-" : "") << Var2VarIdx[Var(lit)] << " 0" << endl;
-			continue;
-		}
-		for (unsigned i = 0; i < c.num_args(); ++i) {
-			expr lit = c.arg(i);
-			CNFfile << (lit.decl().decl_kind() == Z3_OP_NOT ? "-" : "") << Var2VarIdx[Var(lit)] << " ";
-		}
-		CNFfile << "0" << endl;
-	}
-	CNFfile.close();
 }
 
 expr SucExtractor::sanitize(const expr& e) {
@@ -253,11 +280,19 @@ SucExtractor::Statistics& SucExtractor::getStatistics() {
 }
 
 std::ostream & operator<<(std::ostream & out, SucExtractor::SucException const & e) {
-
+	out << e.msg();
 	return out;
 }
 
 std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s) {
-
+	out <<
+		"### isHL " << s.hl << std::endl <<
+		"### problemSize " << s.problemSize << std::endl <<
+		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
+		"### smallCoreSize " << s.smallCoreSize << std::endl <<
+		"### isUnsat " << s.isUnsat << std::endl <<
+		"### isMinimal " << s.isMinimal << std::endl <<
+		"### z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime << std::endl <<
+		"### totalTime " << s.totalTime << std::endl;
 	return out;
 }

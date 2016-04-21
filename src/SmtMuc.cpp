@@ -46,8 +46,9 @@ int main(int argc, char *argv[]) {
 
 		SucExtractor ex(ast, parser.IsHighLevel());
 
-		ex.extract();
-		
+		vector<expr> res = ex.extract();
+		std::cout << ex.getStatistics() << std::endl;
+
 		//MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
 		//MucExtractor extractor(ast, parser.IsHighLevel(), info);
 
@@ -96,6 +97,10 @@ int main(int argc, char *argv[]) {
 #endif // DEBUG
 
 	} catch (const MucExtractor::MucException& e) {
+		std::cerr << e << std::endl;
+		return 0;
+	} 
+	catch (const SucExtractor::SucException& e) {
 		std::cerr << e << std::endl;
 		return 0;
 	}
