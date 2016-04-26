@@ -4,7 +4,7 @@
 using std::stringstream;
 
 AssignmentMananger::AssignmentMananger(vector<Var>& _vars, 
-	unordered_map<Var, vid, VarHash>& _Var2VarIdx, ClauseManager& _cm) :
+	unordered_map<Var, vid, VarHash>& _Var2VarIdx, ConstraintManager& _cm) :
 	theoryCheckSolver(Utils::get_ctx()), totalTheoryChecksTime(0), vars(_vars), 
 	Var2VarIdx(_Var2VarIdx), cm(_cm) {}
 

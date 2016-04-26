@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <map>
+#include <set>
 #include "z3++.h"
 #include "Var.h"
 #include "ClauseManager.h"
@@ -15,10 +16,11 @@ using std::string;
 using std::unordered_set;
 using std::unordered_map;
 using std::map;
+using std::set;
 
 using namespace z3;
 
-#define CL_UNDEF -1
+#define C_UNDEF -1
 
 
 
@@ -94,6 +96,7 @@ private:
 			moreMucClauses - the current set of clause ids that were rotated successfully in all the previous Rotation recursive calls
 	**/
 	void Rotate(cid clauseId, unordered_set<cid>& moreMucClauses);
+	void HLRotate(cid clauseId, unordered_set<cid>& moreMucClauses);
 
 	/**
 		Flip a given variable. Single step in rotation.
@@ -107,8 +110,9 @@ private:
 			unsatClause - Currently unsat clause id
 	**/
 	void RotationFlipVar(vid varToFlip, unordered_set<cid>& moreMucClauses, 
-		unordered_set<vid>& flippedVars, cid unsatClause = CL_UNDEF, int depth = 0);
-
+		unordered_set<vid>& flippedVars, cid unsatClause = C_UNDEF, int depth = 0);
+	void HLRotationFlipVar(vid varToFlip, unordered_set<cid>& moreMucClauses,
+		unordered_set<vid>& flippedVars, cid unsatClause = C_UNDEF, int depth = 0);
 
 	void initLiteralMapping();
 
@@ -118,12 +122,13 @@ private:
 	expr neg(expr& lit);
 	expr getUnsatLit(vid v);
 	void insertVar(Var v);
+	set<vid>& getAllVars(clid id);
 	
 	//------------ Fields -----------------------------------------------
 	expr formula;
 	bool isHL;
 	Statistics statistics;
-	ClauseManager cm;
+	ConstraintManager cm;
 	int cnt_no_progress; // o.s. used to limit effort in rotation. 
 	/** Ids of constraints to be treated in the main removal loop **/
 	unordered_set<cid>* unmarked;
@@ -134,11 +139,13 @@ private:
 	RotationInfo rotationInfo;
 
 	/** maps every literal to the clauses it appears in **/
-	unordered_map<expr, vector<cid>, ExprHash, ExprEquals> lit2ClauseIds;
+	unordered_map<expr, vector<clid>, ExprHash, ExprEquals> lit2ClauseIds;
 
 	AssignmentMananger* am;
 	
 	vector<Var> vars;
-	unordered_map<Var, vid, VarHash> Var2VarIdx;		
+	unordered_map<Var, vid, VarHash> Var2VarIdx;
+
+	unordered_map<clid, set<vid>> clauseId2Vars;
 };
 

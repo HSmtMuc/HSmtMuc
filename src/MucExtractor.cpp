@@ -1,9 +1,10 @@
 #include "MucExtractor.h"
 #include "Utils.h"
 #include <unordered_map>
-
 #include <ctime>
 #include <fstream>
+#include <algorithm>
+#include <iterator>
 #include "ClauseManager.h"
 #include "FullAssignmentMananger.h"
 #include "PartialAssignmentMananger.h"
@@ -15,6 +16,7 @@
 using std::ofstream;
 using std::unordered_map;
 using std::stringstream;
+using std::set_intersection;
 
 
 MucExtractor::MucExtractor(expr _formula, bool _isHL, RotationInfo _rotationInfo)
@@ -115,7 +117,7 @@ vector<expr> MucExtractor::extract() {
 				unsigned oldSize = marked.size();
 				unordered_set<cid> mucClauses;
 				if (isHL)
-					;//HL_Rotation();
+					HLRotate(id, mucClauses);
 				else {
 					if (rotationInfo.boundRotation) {
 						time_t beforeRotate = std::clock();
@@ -179,7 +181,7 @@ vector<expr> MucExtractor::extract() {
 		statistics.totalTheoryChecksTime = am->getTotalTheoryChecksTime();
 	vector<expr> res;
 	for (int id : marked) {
-		res.push_back(cm.getOriginalClause(id));
+		res.push_back(cm.getOriginalConstraint(id));
 	}
 	statistics.minimalCoreSize = res.size();
 	return res;
@@ -189,8 +191,8 @@ void MucExtractor::filterByCore(const expr_vector& core) {
 	unordered_set<cid>* new_unmarked = new unordered_set<cid>(core.size());
 	bool checkUnmarked = (unmarked->size() <= marked.size());
 	for (unsigned i = 0; i < core.size(); ++i) {
-		cid id = cm.getClauseId(core[i]);
-		assert(id != CL_UNDEF);
+		cid id = cm.getConstraintId(core[i]);
+		assert(id != C_UNDEF);
 		if ((checkUnmarked && unmarked->find(id) != unmarked->end()) ||
 			(!checkUnmarked && marked.find(id) == marked.end()))
 			new_unmarked->insert(id);
@@ -202,8 +204,8 @@ void MucExtractor::filterByCore(const expr_vector& core) {
 void MucExtractor::initUnmarked(const expr_vector& core) {
 	unmarked = new unordered_set<cid>(core.size());
 	for (unsigned i = 0; i < core.size(); ++i) {
-		cid id = cm.getClauseId(core[i]);
-		assert(id != CL_UNDEF);
+		cid id = cm.getConstraintId(core[i]);
+		assert(id != C_UNDEF);
 		unmarked->insert(id);
 	}
 }
@@ -255,7 +257,7 @@ void MucExtractor::Rotate(cid clauseId, unordered_set<cid>& moreMucClauses) {
 		moreMucClauses.insert(clauseId);
 	marked.insert(clauseId);
 	unmarked->erase(clauseId);
-	expr c = cm.getClause(clauseId);
+	expr c = cm.getConstraint(clauseId);
 	unordered_set<vid> flippedVars = unordered_set<vid>();
 	if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single lit
 		RotationFlipVar(Var2VarIdx[Var(c)], moreMucClauses, flippedVars);
@@ -264,6 +266,40 @@ void MucExtractor::Rotate(cid clauseId, unordered_set<cid>& moreMucClauses) {
 
 	for (unsigned i = 0; i < c.num_args(); ++i) {
 		RotationFlipVar(Var2VarIdx[Var(c.arg(i))], moreMucClauses, flippedVars);
+	}
+}
+
+void MucExtractor::HLRotate(cid hlcostraintId, unordered_set<cid>& moreMucClauses) {
+	statistics.numRotationCalls++;
+	cnt_no_progress = 0;
+	if (rotationInfo.eager)
+		moreMucClauses.insert(hlcostraintId);
+	marked.insert(hlcostraintId);
+	unmarked->erase(hlcostraintId);
+
+	vector<clid> clIds = cm.getClauseList(hlcostraintId);
+	int i;
+	clid unsatClause = C_UNDEF;
+	for (i = 0; i < clIds.size(); ++i) {
+		if (!am->isClauseSat(clIds[i])) {
+			unsatClause = clIds[i];
+			break;
+		}
+	}
+	assert(C_UNDEF != unsatClause);
+	set<vid> intersect = getAllVars(unsatClause);
+	for (; i < clIds.size(); ++i) {
+		if (am->isClauseSat(clIds[i]))
+			continue;
+		set<vid> currClause = getAllVars(clIds[i]);
+		set<vid> currIntersect = intersect;
+		intersect = set<vid>();
+		set_intersection(currClause.begin(), currClause.end(), currIntersect.begin(), currIntersect.end(), 
+			std::inserter(intersect, intersect.begin()));
+	}
+	unordered_set<vid> flippedVars = unordered_set<vid>();
+	for (vid vId : intersect) {
+		HLRotationFlipVar(vId, moreMucClauses, flippedVars);
 	}
 }
 
@@ -276,16 +312,16 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 
 
 	expr lit = getUnsatLit(varToFlip);
-	vector<cid> affectedClauses = lit2ClauseIds[lit];
+	vector<clid> affectedClauses = lit2ClauseIds[lit];
 	unsigned unsatClausesNum = 0;
-	cid unsatClsUid = CL_UNDEF;
-	if (unsatClause != CL_UNDEF) {
+	cid unsatClsUid = C_UNDEF;
+	if (unsatClause != C_UNDEF) {
 		if (!am->isClauseSat(unsatClause)) {
 			++unsatClausesNum;
 			unsatClsUid = unsatClause;
 		}
 	}
-	for (cid id: affectedClauses) {
+	for (clid id: affectedClauses) {
 		if (marked.find(id) == marked.end() && unmarked->find(id) == unmarked->end())
 			continue;
 		if (!am->isClauseSat(id)) {
@@ -313,7 +349,7 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	//std::cout << "T, " << (afterth - beforeth) << std::endl;
 	if (!isTconflict) {
 		assert(unsatClausesNum == 1);
-		assert(unsatClsUid != CL_UNDEF);
+		assert(unsatClsUid != C_UNDEF);
 		statistics.numClausesMarkedByRotations++;
 		if (depth > 0)
 			statistics.numTheoryConflictResolves++;
@@ -322,6 +358,75 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	else if (nextDepth < rotationInfo.flippingThreshold) {
 		for (vid nextVar : core) {
 			RotationFlipVar(nextVar, moreMucClauses, flippedVars, unsatClsUid, nextDepth);
+			if (cnt_no_progress > 15) break;// 15 - magic number. Note that cnt gets reset to 0 if we mark a clause. 
+		}
+	}
+	am->varFlip(varToFlip);
+	flippedVars.erase(varToFlip);
+}
+
+void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucConstraints, unordered_set<vid>& flippedVars, cid unsatConstraint, int depth) {
+	if (depth >= rotationInfo.flippingThreshold || flippedVars.find(varToFlip) != flippedVars.end()) //don't flip more than FlippingThreshold and avoid flipping loops
+		return;
+
+	am->varFlip(varToFlip);
+	flippedVars.insert(varToFlip);
+
+	expr lit = getUnsatLit(varToFlip);
+	vector<clid> affectedClauses = lit2ClauseIds[lit];
+	unsigned unsatConstraintsNum = 0;
+	cid unsatConstraintId = C_UNDEF;
+	if (unsatConstraint != C_UNDEF) {
+		vector<clid> clIds = cm.getClauseList(unsatConstraint);
+		for (clid clId : clIds) {
+			if (!am->isClauseSat(clId)) {
+				++unsatConstraintsNum;
+				unsatConstraintId = unsatConstraint;
+				break;
+			}
+		}
+
+	}
+	for (clid id : affectedClauses) {
+		cid hlId = cm.getConstraintIdFromClause(id);
+		if (marked.find(hlId) == marked.end() && unmarked->find(hlId) == unmarked->end())
+			continue;
+		if (hlId == unsatConstraintId)
+			continue;
+		if (!am->isClauseSat(id)) {
+			++unsatConstraintsNum;
+			if (unsatConstraintsNum > 1)
+				break;
+			unsatConstraintId = hlId;
+		}
+	}
+	if (unsatConstraintsNum >= 2 ||
+		(!rotationInfo.eager && unsatConstraintsNum == 1 && marked.find(unsatConstraintId) != marked.end()) ||
+		(rotationInfo.eager && unsatConstraintsNum == 1 && moreMucConstraints.find(unsatConstraintId) != moreMucConstraints.end())) { //more than one clause was flipped or a clause that's already marked was flipped
+		am->varFlip(varToFlip);
+		flippedVars.erase(varToFlip);
+		return;
+	}
+
+	int nextDepth = depth + 1;
+	vector<vid> core;
+	statistics.numTheoryChecks++;
+	//time_t beforeth = std::clock();
+	bool isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
+	//time_t afterth = std::clock();
+	cnt_no_progress++;
+	//std::cout << "T, " << (afterth - beforeth) << std::endl;
+	if (!isTconflict) {
+		assert(unsatConstraintsNum == 1);
+		assert(unsatConstraintId != C_UNDEF);
+		statistics.numClausesMarkedByRotations++;
+		if (depth > 0)
+			statistics.numTheoryConflictResolves++;
+		HLRotate(unsatConstraintId, moreMucConstraints);
+	}
+	else if (nextDepth < rotationInfo.flippingThreshold) {
+		for (vid nextVar : core) {
+			HLRotationFlipVar(nextVar, moreMucConstraints, flippedVars, unsatConstraintId, nextDepth);
 			if (cnt_no_progress > 15) break;// 15 - magic number. Note that cnt gets reset to 0 if we mark a clause. 
 		}
 	}
@@ -338,25 +443,35 @@ expr MucExtractor::getUnsatLit(vid v) {
 
 void MucExtractor::initLiteralMapping() {
 	for (expr p : cm.getCurrAssumptions()) {
-		int cId = cm.getClauseId(p);
-		assert(cId != CL_UNDEF);
-		expr c = cm.getClause(cId);
-		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single literal
-			expr lit = c;
-			if (lit2ClauseIds.find(lit) == lit2ClauseIds.end()) {
-				lit2ClauseIds[lit] = vector<int>();
-				insertVar(Var(lit));
+		cid cId = cm.getConstraintId(p);
+		vector<clid> clIds = cm.getClauseList(cId);
+		assert(cId != C_UNDEF);
+
+
+		for (clid clId : clIds) {
+			//clid clId = cId;
+			assert(isHL || clId == cId);
+			assert(clId != C_UNDEF);
+
+			expr c = cm.getClause(clId);
+
+			if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single literal
+				expr lit = c;
+				if (lit2ClauseIds.find(lit) == lit2ClauseIds.end()) {
+					lit2ClauseIds[lit] = vector<int>();
+					insertVar(Var(lit));
+				}
+				lit2ClauseIds[lit].push_back(clId);
+				continue;
 			}
-			lit2ClauseIds[lit].push_back(cId);
-			continue;
-		}
-		for (unsigned i = 0; i < c.num_args(); ++i){
-			expr lit = c.arg(i);
-			if (lit2ClauseIds.find(lit)== lit2ClauseIds.end()) {
-				lit2ClauseIds[lit] = vector<int>();
-				insertVar(Var(lit));
+			for (unsigned i = 0; i < c.num_args(); ++i) {
+				expr lit = c.arg(i);
+				if (lit2ClauseIds.find(lit) == lit2ClauseIds.end()) {
+					lit2ClauseIds[lit] = vector<int>();
+					insertVar(Var(lit));
+				}
+				lit2ClauseIds[lit].push_back(clId);
 			}
-			lit2ClauseIds[lit].push_back(cId);
 		}
 	}
 }
@@ -372,4 +487,21 @@ expr MucExtractor::neg(expr& lit) {
 	if (lit.decl().decl_kind() == Z3_OP_NOT)
 		return lit.arg(0);
 	return !lit;
+}
+
+set<vid>& MucExtractor::getAllVars(clid id) {
+	if (clauseId2Vars.find(id) == clauseId2Vars.end()) {
+		set<vid> res;
+		expr c = cm.getClause(id);
+		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single lit
+			res.insert(c);
+		}
+		else {
+			for (unsigned i = 0; i < c.num_args(); ++i) {
+				res.insert(Var2VarIdx[Var(c.arg(i))]);
+			}
+		}
+		clauseId2Vars[id] = res;
+	}
+	return clauseId2Vars[id];
 }

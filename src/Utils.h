@@ -11,10 +11,9 @@ using namespace z3;
 #define DEFAULT_FLIPPING_THRESHOLD 2
 #define DEFAULT_ASSIGNMENT_BUILDING 0
 
-#define CL_UNDEF -1
+#define C_UNDEF -1
 #define V_UNDEF -1
 
-typedef int cid; // clause id
 typedef int vid; // variable id
 
 class Utils {

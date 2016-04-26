@@ -16,12 +16,12 @@ class PartialAssignmentMananger :
 	void setCurrentqAssumption(vid qIdx, bool val);
 
 public:
-	PartialAssignmentMananger(vector<Var>& _vars, unordered_map<Var, vid, VarHash>& _Var2VarIdx, ClauseManager& cm);
+	PartialAssignmentMananger(vector<Var>& _vars, unordered_map<Var, vid, VarHash>& _Var2VarIdx, ConstraintManager& cm);
 	~PartialAssignmentMananger();
 	void setModel(model& m);
 	void varFlip(vid id);
 	bool getLitValue(expr lit);
-	bool isClauseSat(cid id);
+	bool isClauseSat(clid id);
 	void updateModel();
 };
 
