@@ -6,9 +6,9 @@ using std::stringstream;
 using std::system;
 using std::ifstream;
 
-string hmuc = "..\\build\\hmuc.exe";
-string cnfFile = "..\\temp\\temp.cnf";
-string hmucResFile = "..\\temp\\hmuc_res";
+string hmuc = "hmuc.exe";
+string cnfFile = "temp.cnf";
+string hmucResFile = "hmuc_res";
 
 SucExtractor::SucExtractor(expr _formula, bool isHL) : formula(_formula), cm(formula, isHL), statistics(isHL) {
 }
@@ -21,17 +21,16 @@ vector<expr> SucExtractor::extract() {
 	statistics.problemSize = cm.getNumConstraints();
 
 	statistics.z3AssumtionsInitialSolveTime = std::clock();
-
 	check_result isSat;
 	try {
 		vector<expr> assumptions = cm.getCurrAssumptions();
 		isSat = s.check(assumptions.size(), &assumptions[0]);
 	}
+
 	catch (const exception &e) {
 		throw SucException(string("Initial solving failed: ") + string(e.msg()));
 	}
 	statistics.z3AssumtionsInitialSolveTime = std::clock() - statistics.z3AssumtionsInitialSolveTime;
-
 	if (isSat != unsat) {
 		throw SucException("Problem is not unsat!");
 	}
@@ -50,7 +49,6 @@ vector<expr> SucExtractor::extract() {
 
 	expr_vector core = s.unsat_core();
 	statistics.z3InitialCoreSize = core.size();
-	
 	vector<expr> clauses;
 	vector<expr> originalClauses;
 	for (unsigned i = 0; i < core.size(); ++i) {
@@ -60,7 +58,6 @@ vector<expr> SucExtractor::extract() {
 	}
 	vector<expr> lemmas;
 	extractLemmas(s.proof(), lemmas);
-
 	expr lemmasCNF = Utils::convert_to_cnf(Utils::m_and(lemmas));
 	if (lemmasCNF.decl().decl_kind() == Z3_OP_AND) {
 		for (int i = 0; i < lemmasCNF.num_args(); ++i) {
@@ -116,6 +113,7 @@ void SucExtractor::insertVar(Var v) {
 void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 	ofstream CNFfile;
 	CNFfile.open(cnfFile, std::ios::out);
+
 	CNFfile << "p cnf " << Var2VarIdx.size() << " " << clauses.size() << endl;
 
 	for (expr c : clauses) {
@@ -132,7 +130,6 @@ void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 	}
 	CNFfile.close();
 }
-
 vector<expr> SucExtractor::runSatMUC(const vector<expr>& originalClauses) {
 	std::system(string(hmuc+" -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
 	return parseHmucRes(originalClauses);
@@ -157,7 +154,7 @@ vector<expr> SucExtractor::parseHmucRes(const vector<expr>& originalClauses) {
 	return res;
 }
 
-void SucExtractor::extractLemmas(expr e, vector<expr>& res) {
+void SucExtractor::extractLemmas(expr& e, vector<expr>& res) {
 	switch (e.decl().decl_kind()) {
 	case Z3_OP_PR_REFLEXIVITY:
 	case Z3_OP_PR_REWRITE:
@@ -188,28 +185,30 @@ void SucExtractor::extractEquivalence(expr& e, vector<expr>& res) {
 	case Z3_OP_IFF:
 		assert(e.arg(0).num_args() == 2);
 		expr arg1(sanitize(e.arg(0).arg(0))), arg2(sanitize(e.arg(0).arg(1)));
-		stringstream arg1s, arg2s;
-		arg1s << arg1;
-		arg2s << arg2;
+		res.push_back(!arg1 || arg2);
+		res.push_back(arg1 || !arg2);
+		//stringstream arg1s, arg2s;
+		//arg1s << arg1;
+		//arg2s << arg2;
 
-		if (arg1s.str() != arg2s.str()) {
-			if (arg1.decl().decl_kind() == Z3_OP_FALSE) {
-				res.push_back(!arg2);
-			}
-			else if (arg2.decl().decl_kind() == Z3_OP_FALSE) {
-				res.push_back(!arg1);
-			}
-			else if (arg1.decl().decl_kind() == Z3_OP_TRUE) {
-				res.push_back(arg2);
-			}
-			else if (arg2.decl().decl_kind() == Z3_OP_TRUE) {
-				res.push_back(arg1);
-			}
-			else {
-				res.push_back(!arg1 || arg2);
-				res.push_back(arg1 || !arg2);
-			}
-		}
+		//if (arg1s.str() != arg2s.str()) {
+		//	if (arg1.decl().decl_kind() == Z3_OP_FALSE) {
+		//		res.push_back(!arg2);
+		//	}
+		//	else if (arg2.decl().decl_kind() == Z3_OP_FALSE) {
+		//		res.push_back(!arg1);
+		//	}
+		//	else if (arg1.decl().decl_kind() == Z3_OP_TRUE) {
+		//		res.push_back(arg2);
+		//	}
+		//	else if (arg2.decl().decl_kind() == Z3_OP_TRUE) {
+		//		res.push_back(arg1);
+		//	}
+		//	else {
+		//		res.push_back(!arg1 || arg2);
+		//		res.push_back(arg1 || !arg2);
+		//	}
+		//}
 	}
 }
 void SucExtractor::extractSymmetry(expr& e, vector<expr>& res) {

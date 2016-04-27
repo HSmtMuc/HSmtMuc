@@ -45,7 +45,6 @@ int main(int argc, char *argv[]) {
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
 
 		SucExtractor ex(ast, parser.IsHighLevel());
-
 		vector<expr> res = ex.extract();
 		std::cout << ex.getStatistics() << std::endl;
 

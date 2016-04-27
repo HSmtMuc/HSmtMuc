@@ -59,7 +59,7 @@ private:
 	vector<expr> runSatMUC(const vector<expr>& originalClauses);
 	vector<expr> parseHmucRes(const vector<expr>& originalClauses);
 
-	void extractLemmas(expr e, vector<expr>& res);
+	void extractLemmas(expr& e, vector<expr>& res);
 	void extractEquivalence(expr& e, vector<expr>& res);
 	void extractSymmetry(expr& e, vector<expr>& res);
 	void extractImplication(expr& e, vector<expr>& res);
