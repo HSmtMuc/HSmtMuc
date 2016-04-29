@@ -67,7 +67,7 @@ vector<expr> SucExtractor::extract() {
 	else {
 		clauses.push_back(lemmasCNF);
 	}
-	
+	statistics.numLemmasExtracted = lemmasCNF.length();
 	initLiteralMapping(clauses);
 
 	createCNFFile(clauses);
@@ -75,8 +75,8 @@ vector<expr> SucExtractor::extract() {
 	statistics.totalTime = std::clock() - statistics.totalTime;
 	
 	statistics.smallCoreSize = res.size();
-	statistics.isUnsat = Utils::checkCoreUnsat(res);
-	statistics.isMinimal = Utils::checkCoreMinimal(res);
+	//statistics.isUnsat = Utils::checkCoreUnsat(res);
+	//statistics.isMinimal = Utils::checkCoreMinimal(res);
 	return res;
 }
 
@@ -283,15 +283,30 @@ std::ostream & operator<<(std::ostream & out, SucExtractor::SucException const &
 	return out;
 }
 
+//std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s) {
+//	out <<
+//		"### isHL " << s.hl << std::endl <<
+//		"### problemSize " << s.problemSize << std::endl <<
+//		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
+//		"### smallCoreSize " << s.smallCoreSize << std::endl <<
+//		"### isUnsat " << s.isUnsat << std::endl <<
+//		"### isMinimal " << s.isMinimal << std::endl <<
+//		"### z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime << std::endl <<
+//		"### totalTime " << s.totalTime << std::endl <<
+//		"### numLemmasExtracted " << s.numLemmasExtracted << std::endl;
+//	return out;
+//}
+
 std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s) {
 	out <<
 		"### isHL " << s.hl << std::endl <<
 		"### problemSize " << s.problemSize << std::endl <<
 		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
 		"### smallCoreSize " << s.smallCoreSize << std::endl <<
-		"### isUnsat " << s.isUnsat << std::endl <<
-		"### isMinimal " << s.isMinimal << std::endl <<
+		"### isUnsat " << -1 << std::endl <<
+		"### isMinimal " << -1 << std::endl <<
 		"### z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime << std::endl <<
-		"### totalTime " << s.totalTime << std::endl;
+		"### totalTime " << s.totalTime << std::endl <<
+		"### numLemmasExtracted " << s.numLemmasExtracted << std::endl;
 	return out;
 }
