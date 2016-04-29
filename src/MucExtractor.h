@@ -110,9 +110,9 @@ private:
 			unsatClause - Currently unsat clause id
 	**/
 	void RotationFlipVar(vid varToFlip, unordered_set<cid>& moreMucClauses, 
-		unordered_set<vid>& flippedVars, cid unsatClause = C_UNDEF, int depth = 0);
+		unordered_set<vid>& flippedVars, cid unsatClause = C_UNDEF, int depth = 0, bool isTheorySat = true);
 	void HLRotationFlipVar(vid varToFlip, unordered_set<cid>& moreMucClauses,
-		unordered_set<vid>& flippedVars, cid unsatClause = C_UNDEF, int depth = 0);
+		unordered_set<vid>& flippedVars, cid unsatClause = C_UNDEF, int depth = 0, bool isTheorySat = true);
 
 	void initLiteralMapping();
 

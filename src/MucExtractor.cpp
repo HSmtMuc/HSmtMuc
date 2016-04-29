@@ -116,40 +116,35 @@ vector<expr> MucExtractor::extract() {
 				am->setModel(m);
 				unsigned oldSize = marked.size();
 				unordered_set<cid> mucClauses;
-				if (isHL)
-					HLRotate(id, mucClauses);
-				else {
-					if (rotationInfo.boundRotation) {
-						time_t beforeRotate = std::clock();
-						Rotate(id, mucClauses);
-						time_t afterRotate = std::clock();
-						//std::cout << "R," << (afterRotate - beforeRotate) << std::endl;
-						//std::cout << "S(" << (marked.size() - oldSize - 1) << ")" << std::endl;
-						rot_exp_time = rot_exp_time * alpha + (afterRotate - beforeRotate) * (1 - alpha);
-						rot_exp_cls = rot_exp_cls * alpha + (marked.size()-oldSize - 1) * (1 - alpha);
-						rot_exp_smt_time = rot_exp_smt_time  * alpha + (after_smt_call - before_smt_call) * (1 - alpha);
+				if (rotationInfo.boundRotation) {
+					time_t beforeRotate = std::clock();
+					isHL ? HLRotate(id, mucClauses) : Rotate(id, mucClauses);
+					time_t afterRotate = std::clock();
+					//std::cout << "R," << (afterRotate - beforeRotate) << std::endl;
+					//std::cout << "S(" << (marked.size() - oldSize - 1) << ")" << std::endl;
+					rot_exp_time = rot_exp_time * alpha + (afterRotate - beforeRotate) * (1 - alpha);
+					rot_exp_cls = rot_exp_cls * alpha + (marked.size()-oldSize - 1) * (1 - alpha);
+					rot_exp_smt_time = rot_exp_smt_time  * alpha + (after_smt_call - before_smt_call) * (1 - alpha);
 						
-						alpha = 0.9; // first iteration alpha = 0. All others this value. 
-					}
-					else {
-						Rotate(id, mucClauses);
-						//std::cout << "S(" << (marked.size() - oldSize - 1) << ")" << std::endl;
-					}
-					if (marked.size() > (oldSize + 1))
-						currentUnsuccessfulTries = 0;
-					else
-					{
-						currentUnsuccessfulTries++;
-						if (currentUnsuccessfulTries >= rotationInfo.tries) {
-							stop_rotation = true;
-						//	std::cout << "---- stop rotation (rotatet)" << std::endl;
-						}
-					}
-						//	std::cout << "(" << rot_exp_smt_time << "," << (rot_exp_time / rot_exp_cls) << ")" << std::endl;
-					if (rot_exp_cls == 0 || (rotationInfo.boundRotation && !stop_rotation && (ROTATE_EXP * rot_exp_smt_time) < (rot_exp_time / rot_exp_cls))) {
+					alpha = 0.9; // first iteration alpha = 0. All others this value. 
+				}
+				else {
+					isHL ? HLRotate(id, mucClauses) : Rotate(id, mucClauses);
+					//std::cout << "S(" << (marked.size() - oldSize - 1) << ")" << std::endl;
+				}
+				if (marked.size() > (oldSize + 1))
+					currentUnsuccessfulTries = 0;
+				else {
+					currentUnsuccessfulTries++;
+					if (currentUnsuccessfulTries >= rotationInfo.tries) {
 						stop_rotation = true;
-						//	std::cout << "------ stop rotation (boundrot)" << std::endl;
+						//	std::cout << "---- stop rotation (rotatet)" << std::endl;
 					}
+				}
+				//	std::cout << "(" << rot_exp_smt_time << "," << (rot_exp_time / rot_exp_cls) << ")" << std::endl;
+				if (rot_exp_cls == 0 || (rotationInfo.boundRotation && !stop_rotation && (ROTATE_EXP * rot_exp_smt_time) < (rot_exp_time / rot_exp_cls))) {
+					stop_rotation = true;
+					//	std::cout << "------ stop rotation (boundrot)" << std::endl;
 				}
 			}
 			else {
@@ -303,7 +298,8 @@ void MucExtractor::HLRotate(cid hlcostraintId, unordered_set<cid>& moreMucClause
 	}
 }
 
-void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucClauses, unordered_set<vid>& flippedVars, cid unsatClause, int depth) {
+void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucClauses, 
+	unordered_set<vid>& flippedVars, cid unsatClause, int depth, bool isTheorySat) {
 	if (depth >= rotationInfo.flippingThreshold || flippedVars.find(varToFlip) != flippedVars.end()) //don't flip more than FlippingThreshold and avoid flipping loops
 		return;
 
@@ -343,7 +339,9 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	vector<vid> core;
 	statistics.numTheoryChecks++;
 	//time_t beforeth = std::clock();
-	bool isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
+	bool isTconflict = isTheorySat;
+	if (!vars[varToFlip].asExpr().is_bool())
+		isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
 	//time_t afterth = std::clock();
 	cnt_no_progress++;
 	//std::cout << "T, " << (afterth - beforeth) << std::endl;
@@ -365,7 +363,8 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	flippedVars.erase(varToFlip);
 }
 
-void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucConstraints, unordered_set<vid>& flippedVars, cid unsatConstraint, int depth) {
+void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucConstraints, 
+	unordered_set<vid>& flippedVars, cid unsatConstraint, int depth, bool isTheorySat) {
 	if (depth >= rotationInfo.flippingThreshold || flippedVars.find(varToFlip) != flippedVars.end()) //don't flip more than FlippingThreshold and avoid flipping loops
 		return;
 
@@ -412,7 +411,9 @@ void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucC
 	vector<vid> core;
 	statistics.numTheoryChecks++;
 	//time_t beforeth = std::clock();
-	bool isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
+	bool isTconflict = isTheorySat;
+	if (!vars[varToFlip].asExpr().is_bool())
+		isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
 	//time_t afterth = std::clock();
 	cnt_no_progress++;
 	//std::cout << "T, " << (afterth - beforeth) << std::endl;
