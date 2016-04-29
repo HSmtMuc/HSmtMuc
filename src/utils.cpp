@@ -82,7 +82,6 @@ bool Utils::checkCoreUnsat(vector<expr>& core) {
 }
 
 bool Utils::checkCoreMinimal(vector<expr>& core) {
-	bool minimal = true;
 	for (expr c : core) {
 		solver s(Utils::get_ctx());
 		for (expr c1 : core) {
@@ -90,10 +89,11 @@ bool Utils::checkCoreMinimal(vector<expr>& core) {
 				s.add(c1);
 		}
 		check_result isSat = s.check();
-		if (isSat != sat)
-			minimal = false;
+		if (isSat != sat) {
+			return false;
+		}
 	}
-	return minimal;
+	return true;
 }
 
 Utils::Utils() {

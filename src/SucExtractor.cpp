@@ -58,6 +58,7 @@ vector<expr> SucExtractor::extract() {
 	}
 	vector<expr> lemmas;
 	extractLemmas(s.proof(), lemmas);
+	statistics.numLemmasExtracted = lemmas.size();
 	expr lemmasCNF = Utils::convert_to_cnf(Utils::m_and(lemmas));
 	if (lemmasCNF.decl().decl_kind() == Z3_OP_AND) {
 		for (int i = 0; i < lemmasCNF.num_args(); ++i) {
@@ -67,7 +68,7 @@ vector<expr> SucExtractor::extract() {
 	else {
 		clauses.push_back(lemmasCNF);
 	}
-	statistics.numLemmasExtracted = lemmasCNF.length();
+	statistics.numCnfLemmasExtracted = lemmasCNF.num_args();
 	initLiteralMapping(clauses);
 
 	createCNFFile(clauses);
@@ -76,7 +77,7 @@ vector<expr> SucExtractor::extract() {
 	
 	statistics.smallCoreSize = res.size();
 	//statistics.isUnsat = Utils::checkCoreUnsat(res);
-	//statistics.isMinimal = Utils::checkCoreMinimal(res);
+	statistics.isMinimal = Utils::checkCoreMinimal(res);
 	return res;
 }
 
@@ -304,9 +305,10 @@ std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s
 		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
 		"### smallCoreSize " << s.smallCoreSize << std::endl <<
 		"### isUnsat " << -1 << std::endl <<
-		"### isMinimal " << -1 << std::endl <<
+		"### isMinimal " << s.isMinimal << std::endl <<
 		"### z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime << std::endl <<
 		"### totalTime " << s.totalTime << std::endl <<
-		"### numLemmasExtracted " << s.numLemmasExtracted << std::endl;
+		"### numLemmasExtracted " << s.numLemmasExtracted << std::endl<<
+	"### numCnfLemmasExtracted " << s.numCnfLemmasExtracted << std::endl;
 	return out;
 }
