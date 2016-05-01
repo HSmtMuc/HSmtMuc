@@ -36,6 +36,17 @@ vector<expr> MucExtractor::extract() {
 	cm.initClauses(s);
 	statistics.problemSize = cm.getNumConstraints();
 
+	//moved check up for hl experiments
+	if (statistics.problemSize <= 1) {
+		std::cout << "Trivial UC" << std::endl;
+		vector<expr> res;
+		res.push_back(formula);
+		statistics.problemSize = 1;
+		statistics.minimalCoreSize = 1;
+		statistics.z3InitialCoreSize = 1;
+		return res;
+	}
+
 	statistics.z3AssumtionsInitialSolveTime = std::clock();
 
 	check_result isSat;
@@ -50,15 +61,15 @@ vector<expr> MucExtractor::extract() {
 		throw MucException("Problem is not unsat!");
 	}
 
-	if (cm.getNumConstraints() <= 1) {
-		std::cout << "Trivial UC" << std::endl;
-		vector<expr> res;
-		res.push_back(formula);
-		statistics.problemSize = 1;
-		statistics.minimalCoreSize = 1;
-		statistics.z3InitialCoreSize = 1;
-		return res;
-	}
+	//if (cm.getNumConstraints() <= 1) {
+	//	std::cout << "Trivial UC" << std::endl;
+	//	vector<expr> res;
+	//	res.push_back(formula);
+	//	statistics.problemSize = 1;
+	//	statistics.minimalCoreSize = 1;
+	//	statistics.z3InitialCoreSize = 1;
+	//	return res;
+	//}
 	
 	expr_vector core = s.unsat_core();
 	statistics.z3InitialCoreSize = core.size();
@@ -340,7 +351,7 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	statistics.numTheoryChecks++;
 	//time_t beforeth = std::clock();
 	bool isTconflict = isTheorySat;
-	if (!vars[varToFlip].asExpr().is_bool())
+	if (!(vars[varToFlip].asExpr().is_const() || vars[varToFlip].asExpr().is_var()))
 		isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
 	//time_t afterth = std::clock();
 	cnt_no_progress++;
@@ -355,7 +366,7 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	}
 	else if (nextDepth < rotationInfo.flippingThreshold) {
 		for (vid nextVar : core) {
-			RotationFlipVar(nextVar, moreMucClauses, flippedVars, unsatClsUid, nextDepth);
+			RotationFlipVar(nextVar, moreMucClauses, flippedVars, unsatClsUid, nextDepth, false);
 			if (cnt_no_progress > 15) break;// 15 - magic number. Note that cnt gets reset to 0 if we mark a clause. 
 		}
 	}
@@ -412,7 +423,7 @@ void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucC
 	statistics.numTheoryChecks++;
 	//time_t beforeth = std::clock();
 	bool isTconflict = isTheorySat;
-	if (!vars[varToFlip].asExpr().is_bool())
+	if (!(vars[varToFlip].asExpr().is_const() || vars[varToFlip].asExpr().is_var()))
 		isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
 	//time_t afterth = std::clock();
 	cnt_no_progress++;
@@ -427,7 +438,7 @@ void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucC
 	}
 	else if (nextDepth < rotationInfo.flippingThreshold) {
 		for (vid nextVar : core) {
-			HLRotationFlipVar(nextVar, moreMucConstraints, flippedVars, unsatConstraintId, nextDepth);
+			HLRotationFlipVar(nextVar, moreMucConstraints, flippedVars, unsatConstraintId, nextDepth,false);
 			if (cnt_no_progress > 15) break;// 15 - magic number. Note that cnt gets reset to 0 if we mark a clause. 
 		}
 	}
