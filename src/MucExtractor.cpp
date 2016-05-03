@@ -294,7 +294,7 @@ void MucExtractor::HLRotate(cid hlcostraintId, unordered_set<cid>& moreMucClause
 	}
 	assert(C_UNDEF != unsatClause);
 	set<vid> intersect = getAllVars(unsatClause);
-	for (; i < clIds.size(); ++i) {
+	for (i++ ; i < clIds.size(); ++i) {
 		if (am->isClauseSat(clIds[i]))
 			continue;
 		set<vid> currClause = getAllVars(clIds[i]);
@@ -350,7 +350,7 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	vector<vid> core;
 	statistics.numTheoryChecks++;
 	//time_t beforeth = std::clock();
-	bool isTconflict = isTheorySat;
+	bool isTconflict = !isTheorySat;
 	if (!(vars[varToFlip].asExpr().is_const() || vars[varToFlip].asExpr().is_var()))
 		isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
 	//time_t afterth = std::clock();
@@ -378,6 +378,7 @@ void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucC
 	unordered_set<vid>& flippedVars, cid unsatConstraint, int depth, bool isTheorySat) {
 	if (depth >= rotationInfo.flippingThreshold || flippedVars.find(varToFlip) != flippedVars.end()) //don't flip more than FlippingThreshold and avoid flipping loops
 		return;
+
 
 	am->varFlip(varToFlip);
 	flippedVars.insert(varToFlip);
@@ -422,9 +423,10 @@ void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucC
 	vector<vid> core;
 	statistics.numTheoryChecks++;
 	//time_t beforeth = std::clock();
-	bool isTconflict = isTheorySat;
+	bool isTconflict = !isTheorySat;
 	if (!(vars[varToFlip].asExpr().is_const() || vars[varToFlip].asExpr().is_var()))
 		isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
+
 	//time_t afterth = std::clock();
 	cnt_no_progress++;
 	//std::cout << "T, " << (afterth - beforeth) << std::endl;
@@ -506,7 +508,7 @@ set<vid>& MucExtractor::getAllVars(clid id) {
 		set<vid> res;
 		expr c = cm.getClause(id);
 		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single lit
-			res.insert(c);
+			res.insert(Var2VarIdx[Var(c)]);
 		}
 		else {
 			for (unsigned i = 0; i < c.num_args(); ++i) {
