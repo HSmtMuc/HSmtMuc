@@ -8,3 +8,15 @@
 *.user
 *.obj
 *.log
+Release/HSmtMuc.exe.lastcodeanalysissucceeded
+src/Release/argparser.nativecodeanalysis.xml
+src/Release/assignmentmananger.nativecodeanalysis.xml
+src/Release/clausemanager.nativecodeanalysis.xml
+src/Release/fullassignmentmananger.nativecodeanalysis.xml
+src/Release/mucextractor.nativecodeanalysis.xml
+src/Release/partialassignmentmananger.nativecodeanalysis.xml
+src/Release/smtmuc.nativecodeanalysis.xml
+src/Release/sucextractor.nativecodeanalysis.xml
+src/Release/utils.nativecodeanalysis.xml
+src/Release/var.nativecodeanalysis.xml
+src/Release/vc.nativecodeanalysis.all.xml
