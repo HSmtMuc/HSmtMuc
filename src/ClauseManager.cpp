@@ -12,8 +12,8 @@ ClauseManager::~ClauseManager()
 {
 }
 void ClauseManager::initClauses(solver& s) {
-	//if (!isHLC)
-	//	formula = Utils::convert_to_cnf(formula);
+	if (!isHLC)
+		formula = Utils::convert_to_cnf(formula);
 
 	if (formula.decl().decl_kind() != Z3_OP_AND) {
 		problemSize = 1;

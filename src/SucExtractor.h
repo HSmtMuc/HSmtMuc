@@ -71,5 +71,7 @@ private:
 	ClauseManager cm;
 	Statistics statistics;
 	unordered_map<Var, vid, VarHash> Var2VarIdx;
+	vector<vid> trueSet;
+	vector<vid> falseSet;
 };
 

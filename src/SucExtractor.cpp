@@ -56,6 +56,9 @@ vector<expr> SucExtractor::extract() {
 		clauses.push_back(clause);
 		originalClauses.push_back(clause);
 	}
+	for (unsigned i = 0; i < core.size(); ++i) {
+		clauses.push_back(core[i]);
+	}
 	vector<expr> lemmas;
 	extractLemmas(s.proof(), lemmas);
 	statistics.numLemmasExtracted = lemmas.size();
@@ -68,6 +71,8 @@ vector<expr> SucExtractor::extract() {
 	else {
 		clauses.push_back(lemmasCNF);
 	}
+	
+	
 	statistics.numCnfLemmasExtracted = lemmasCNF.num_args();
 	initLiteralMapping(clauses);
 
@@ -104,6 +109,10 @@ void SucExtractor::insertVar(Var v) {
 		return;
 	static vid curr = 1;
 	Var2VarIdx[v] = curr;
+	if (v.asExpr().decl().decl_kind() == Z3_OP_FALSE)
+		falseSet.push_back(curr);
+	if (v.asExpr().decl().decl_kind() == Z3_OP_TRUE)
+		trueSet.push_back(curr);
 	curr++;
 }
 
@@ -115,7 +124,7 @@ void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 	ofstream CNFfile;
 	CNFfile.open(cnfFile, std::ios::out);
 
-	CNFfile << "p cnf " << Var2VarIdx.size() << " " << clauses.size() << endl;
+	CNFfile << "p cnf " << Var2VarIdx.size() << " " << clauses.size()+trueSet.size()+falseSet.size() << endl;
 
 	for (expr c : clauses) {
 		if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single literal
@@ -129,6 +138,10 @@ void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 		}
 		CNFfile << "0" << endl;
 	}
+	for (vid v : trueSet) 
+		CNFfile << v << " 0" << endl;
+	for (vid v : falseSet)
+		CNFfile << "-" << v << " 0" << endl;
 	CNFfile.close();
 }
 vector<expr> SucExtractor::runSatMUC(const vector<expr>& originalClauses) {
@@ -156,7 +169,8 @@ vector<expr> SucExtractor::parseHmucRes(const vector<expr>& originalClauses) {
 }
 
 void SucExtractor::extractLemmas(expr& e, vector<expr>& res) {
-	switch (e.decl().decl_kind()) {
+	Z3_decl_kind kind = e.decl().decl_kind();
+	switch (kind) {
 	case Z3_OP_PR_REFLEXIVITY:
 	case Z3_OP_PR_REWRITE:
 	case Z3_OP_PR_DISTRIBUTIVITY:
@@ -169,12 +183,17 @@ void SucExtractor::extractLemmas(expr& e, vector<expr>& res) {
 	case Z3_OP_PR_TRANSITIVITY:
 	case Z3_OP_PR_MONOTONICITY:
 	case Z3_OP_PR_TH_LEMMA:
+	case Z3_OP_PR_DEF_AXIOM:
+	//case Z3_OP_PR_MODUS_PONENS:
+	//case Z3_OP_PR_UNIT_RESOLUTION:
 		extractImplication(e, res);
 	}
 
-	int n = e.num_args();
-	for (int i = 0; i < n; ++i) {
-		extractLemmas(e.arg(i), res);
+	if (kind >= 1280 && kind < 1320) { //continue only inside proof rules
+		int n = e.num_args();
+		for (int i = 0; i < n; ++i) {
+			extractLemmas(e.arg(i), res);
+		}
 	}
 }
 
@@ -192,7 +211,7 @@ void SucExtractor::extractEquivalence(expr& e, vector<expr>& res) {
 		//arg1s << arg1;
 		//arg2s << arg2;
 
-		//if (arg1s.str() != arg2s.str()) {
+		//if (!eq(arg1,arg2)) {
 		//	if (arg1.decl().decl_kind() == Z3_OP_FALSE) {
 		//		res.push_back(!arg2);
 		//	}
@@ -218,6 +237,25 @@ void SucExtractor::extractSymmetry(expr& e, vector<expr>& res) {
 
 	res.push_back(!arg1 || arg2);
 	res.push_back(arg1 || !arg2);
+
+	//if (!eq(arg1, arg2)) {
+		//if (arg1.decl().decl_kind() == Z3_OP_FALSE) {
+		//	res.push_back(!arg2);
+		//}
+		//else if (arg2.decl().decl_kind() == Z3_OP_FALSE) {
+		//	res.push_back(!arg1);
+		//}
+		//else if (arg1.decl().decl_kind() == Z3_OP_TRUE) {
+		//	res.push_back(arg2);
+		//}
+		//else if (arg2.decl().decl_kind() == Z3_OP_TRUE) {
+		//	res.push_back(arg1);
+		//}
+		//else {
+		//	res.push_back(!arg1 || arg2);
+		//	res.push_back(arg1 || !arg2);
+		//}
+	//}
 }
 
 void SucExtractor::extractImplication(expr& e, vector<expr>& res) {
