@@ -70,14 +70,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>Z3_MASTER\src\api\c++;Z3_MASTER\src\api;$(IncludePath)</IncludePath>
-    <ExecutablePath>Z3_MASTER\build;$(ExecutablePath)</ExecutablePath>
-    <LibraryPath>Z3_MASTER\build;$(LibraryPath)</LibraryPath>
+    <IncludePath>c:\z3\Z3-MASTER\src\api\c++;c:\z3\Z3-MASTER\src\api;$(IncludePath)</IncludePath>
+    <ExecutablePath>c:\z3\Z3-MASTER\build;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>c:\z3\Z3-MASTER\build;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ExecutablePath>Z3_MASTER\build;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>Z3_MASTER\src\api\c++;Z3_MASTER\src\api;$(IncludePath)</IncludePath>
-    <LibraryPath>Z3_MASTER\build;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>c:\z3\Z3-MASTER\build;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>c:\z3\Z3-MASTER\src\api\c++;c:\z3\Z3-MASTER\src\api;$(IncludePath)</IncludePath>
+    <LibraryPath>c:\z3\Z3-MASTER\build;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -87,7 +87,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>libz3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>c:\z3\z3-master\build\libz3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,7 +109,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libz3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>c:\z3\z3-master\build\libz3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -135,6 +135,7 @@
     <ClCompile Include="MucExtractor.cpp" />
     <ClCompile Include="PartialAssignmentMananger.cpp" />
     <ClCompile Include="SmtMuc.cpp" />
+    <ClCompile Include="SucExtractor.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Var.cpp" />
   </ItemGroup>
@@ -145,6 +146,7 @@
     <ClInclude Include="FullAssignmentMananger.h" />
     <ClInclude Include="MucExtractor.h" />
     <ClInclude Include="PartialAssignmentMananger.h" />
+    <ClInclude Include="SucExtractor.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Var.h" />
   </ItemGroup>

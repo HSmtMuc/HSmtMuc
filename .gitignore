@@ -20,3 +20,4 @@ src/Release/sucextractor.nativecodeanalysis.xml
 src/Release/utils.nativecodeanalysis.xml
 src/Release/var.nativecodeanalysis.xml
 src/Release/vc.nativecodeanalysis.all.xml
+*.vspx

@@ -29,7 +29,7 @@ void printArgs(ArgParser parser) {
 	std::cout << "Is Rotate: \t" << (parser.Rotate() == 0 ? "False" : "True") << std::endl;
 }
 
-string getConfigName(const ArgParser& parser) {
+string getConfigName(const ArgParser& parser) { 
 	if (!parser.Rotate())
 		return "base";
 	string prefix = parser.Eager() ? "eager" : "rotate";
