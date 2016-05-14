@@ -26,6 +26,7 @@ public:
 	static expr parse_smtlib2_file(string fileName);
 	static expr parse_smtlib_file(string fileName);
 	static expr convert_to_cnf(const expr& e);
+	static expr convert_to_cnf_simplified(const expr& e);
 	static expr simplify(const expr& e);
 	static expr m_and(const vector<expr>& args);
 	static expr m_and(const array<Z3_ast>& args);
