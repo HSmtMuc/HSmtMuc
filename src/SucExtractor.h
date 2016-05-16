@@ -39,10 +39,11 @@ public:
 		time_t totalTime;
 		unsigned numLemmasExtracted;
 		unsigned numCnfLemmasExtracted;
+		unsigned propositionalExtractionTime;
 
 		Statistics(bool _hl)
 			: hl(_hl), problemSize(0), z3InitialCoreSize(0), smallCoreSize(0), 
-				isUnsat(-1), isMinimal(false), z3AssumtionsInitialSolveTime(0), totalTime(0), numLemmasExtracted(0), numCnfLemmasExtracted(0){}
+				isUnsat(-1), isMinimal(false), z3AssumtionsInitialSolveTime(0), totalTime(0), numLemmasExtracted(0), numCnfLemmasExtracted(0), propositionalExtractionTime(0){}
 
 		friend std::ostream & operator<<(std::ostream & out, Statistics const & s);
 	};
@@ -60,7 +61,7 @@ private:
 	void insertVar(Var v);
 
 	void createCNFFile(const vector<expr>& formula);
-	vector<expr> runSatMUC(const vector<expr>& originalClauses);
+	vector<expr> runSatMUC(const vector<expr>& originalClauses, Statistics& stat);
 	vector<expr> parseHmucRes(const vector<expr>& originalClauses);
 
 	void extractLemmas(expr& e, vector<expr>& res);
