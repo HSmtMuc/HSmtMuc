@@ -8,32 +8,39 @@ context& Utils::get_ctx() {
 	static context ctx(cfg);
 	return ctx;
 }
-
 expr Utils::m_and(const vector<expr>& args) {
 	expr res = get_ctx().bool_val(true);
-	for (expr a : args) {
+	for (Z3_ast a : args) {
 		res = res && a;
 	}
-
+	return res;
+}
+expr Utils::m_and(const vector<Z3_ast>& args) {
+	expr res = get_ctx().bool_val(true);
+	for (Z3_ast a : args) {
+		res = res && expr(get_ctx(),a);
+	}
 	return res;
 }
 
 expr Utils::m_and(const array<Z3_ast>& args) {
 	expr res = get_ctx().bool_val(true);
 	for (int i = 0; i < args.size(); ++i) {
-		res = res && args[i];
+		res = expr(get_ctx(), res) && expr(get_ctx(), args[i]);
 	}
 
 	return res;
 }
 
-expr Utils::m_or(const vector<expr>& args) {
-	expr res = get_ctx().bool_val(false);
-	for (expr a : args) {
-		res = res || a;
-	}
+expr Utils::m_or(const vector<Z3_ast>& args) {
+	//expr res = get_ctx().bool_val(false);
+	//for (expr a : args) {
+	//	res = res || a;
+	//}
+	Z3_ast r = Z3_mk_or(get_ctx(), args.size(), &args[0]);
+	return expr(get_ctx(), r);
 
-	return res;
+	//return res;
 }
 
 expr Utils::parse_smtlib2_file(string fileName) {
@@ -54,6 +61,7 @@ expr Utils::parse_smtlib_file(string fileName) {
 }
 
 expr Utils::convert_to_cnf(const expr& e) {
+	try{
 	context& ctx = get_ctx();
 	//tactic t = tactic(ctx, "simplify") & tactic(ctx, "tseitin-cnf") & tactic(ctx, "simplify");
 	tactic t = tactic(ctx, "tseitin-cnf");
@@ -61,8 +69,14 @@ expr Utils::convert_to_cnf(const expr& e) {
 	g.add(e);
 	apply_result r = t(g);
 	return r[0].as_expr();
+	}
+	catch (const exception& e) {
+		std::cout << string("cnf convert failed: ") + string(e.msg()) << std::endl;
+		throw exception(e.msg());
+	}
 }
 expr Utils::convert_to_cnf_simplified(const expr& e) {
+	try{
 	context& ctx = get_ctx();
 	tactic t = tactic(ctx, "simplify") & tactic(ctx, "tseitin-cnf") & tactic(ctx, "simplify");
 	//tactic t = tactic(ctx, "tseitin-cnf");
@@ -70,6 +84,11 @@ expr Utils::convert_to_cnf_simplified(const expr& e) {
 	g.add(e);
 	apply_result r = t(g);
 	return r[0].as_expr();
+	}
+	catch (const exception& e) {
+		std::cout << string("cnf convert failed: ") + string(e.msg()) << std::endl;
+		throw exception(e.msg());
+	}
 }
 
 expr Utils::simplify(const expr& e) {

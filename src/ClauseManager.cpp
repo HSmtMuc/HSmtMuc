@@ -20,6 +20,8 @@ void ClauseManager::initClauses(solver& s) {
 		addClause(formula, s);
 		return;
 	}
+	Z3_ast f = (Z3_ast)formula;
+
 	problemSize = formula.num_args();
 	id2AssumptionP.reserve(problemSize);
 	currentAssumptions.reserve(problemSize);

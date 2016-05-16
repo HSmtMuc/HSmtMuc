@@ -10,11 +10,13 @@
 #include "z3++.h"
 #include "ClauseManager.h"
 #include <fstream>
+#include <unordered_set>
 
 using std::endl;
 using std::ofstream;
 using namespace z3;
 using std::vector;
+using std::unordered_set;
 
 class SucExtractor {
 public:
@@ -31,7 +33,7 @@ public:
 		unsigned problemSize;
 		unsigned z3InitialCoreSize;
 		unsigned smallCoreSize;
-		bool isUnsat;
+		int isUnsat;
 		bool isMinimal;
 		time_t z3AssumtionsInitialSolveTime;
 		time_t totalTime;
@@ -40,13 +42,13 @@ public:
 
 		Statistics(bool _hl)
 			: hl(_hl), problemSize(0), z3InitialCoreSize(0), smallCoreSize(0), 
-				isUnsat(false), isMinimal(false), z3AssumtionsInitialSolveTime(0), totalTime(0), numLemmasExtracted(0), numCnfLemmasExtracted(0){}
+				isUnsat(-1), isMinimal(false), z3AssumtionsInitialSolveTime(0), totalTime(0), numLemmasExtracted(0), numCnfLemmasExtracted(0){}
 
 		friend std::ostream & operator<<(std::ostream & out, Statistics const & s);
 	};
 
 	//------------ Main Methods ---------------------------------
-	SucExtractor(expr formula, bool isHL);
+	SucExtractor(expr formula, bool isHL, string filename);
 	~SucExtractor();
 	vector<expr> extract();
 	Statistics& getStatistics();
@@ -67,11 +69,24 @@ private:
 	void extractImplication(expr& e, vector<expr>& res);
 	expr sanitize(const expr& e);
 
+	void extractLemmas(expr& e, vector<Z3_ast>& res);
+	void extractEquivalence(expr& e, vector<Z3_ast>& res);
+	void extractSymmetry(expr& e, vector<Z3_ast>& res);
+	void extractImplication(expr& e, vector<Z3_ast>& res);
+
+
+	class hExpr : expr {
+
+	};
 	expr formula;
 	ClauseManager cm;
 	Statistics statistics;
 	unordered_map<Var, vid, VarHash> Var2VarIdx;
 	vector<vid> trueSet;
 	vector<vid> falseSet;
+	unordered_set<Z3_ast> subtrees;
+	unordered_map<Z3_ast, Z3_decl_kind> subtreesTypes;
+	unordered_map<Z3_ast, string> subtreesStrings;
+
 };
 

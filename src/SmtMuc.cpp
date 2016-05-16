@@ -181,9 +181,23 @@ int main(int argc, char *argv[]) {
 		else
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
 
-		SucExtractor ex(ast, parser.IsHighLevel());
+		//syso(ast);
+		//syso(ast.num_args());
+		//for (int i = 0; i < ast.num_args(); ++i) {
+		//	syso(ast.arg(i));
+		//	syso(Utils::convert_to_cnf(ast.arg(i)));
+		//}
+
+		SucExtractor ex(ast, parser.IsHighLevel(), parser.getInputFile());
 		vector<expr> res = ex.extract();
 		std::cout << ex.getStatistics() << std::endl;
+		bool isUnsat = Utils::checkCoreUnsat(res);
+		std::cout << "### isUnsat " << isUnsat << std::endl;
+		bool isMinimal = Utils::checkCoreMinimal(res);
+		std::cout << "### isMinimal " << isMinimal << std::endl;
+
+
+
 
 		//clock_t coreExtractTime = std::clock();
 		//MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
@@ -228,10 +242,12 @@ int main(int argc, char *argv[]) {
 		//for (int i = 0; i < res.size(); ++i) {
 		//	std::cout << "Core Element " << i << ": " << res[i] << std::endl;
 		//}
-#ifdef DEBUG
-		checkCoreUnsat(res);
-		checkCoreMinimal(res);
-#endif // DEBUG
+//#ifdef DEBUG
+/*"### isUnsat " << s.isUnsat << std::endl <<
+"### isMinimal " << s.isMinimal << std::endl <<*/
+
+		//Utils::checkCoreMinimal(res);
+//#endif // DEBUG
 
 	} catch (const MucExtractor::MucException& e) {
 		std::cerr << e << std::endl;

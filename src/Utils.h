@@ -13,7 +13,8 @@ using namespace z3;
 
 #define CL_UNDEF -1
 #define V_UNDEF -1
-
+//#define syso(a) std::cout << a << std::endl
+//#define LOG(a) std::cout << __func__ << ": " <<a<< std::endl
 typedef int cid; // clause id
 typedef int vid; // variable id
 
@@ -29,8 +30,10 @@ public:
 	static expr convert_to_cnf_simplified(const expr& e);
 	static expr simplify(const expr& e);
 	static expr m_and(const vector<expr>& args);
+	static expr m_and(const vector<Z3_ast>& args);
 	static expr m_and(const array<Z3_ast>& args);
-	static expr m_or(const vector<expr>& args);
+	//static expr m_or(const vector<expr>& args);
+	static expr m_or(const vector<Z3_ast>& args);
 	static bool checkCoreUnsat(vector<expr>& core);
 	static bool checkCoreMinimal(vector<expr>& core);
 };
