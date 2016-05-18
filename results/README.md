@@ -10,3 +10,5 @@ Results for HSmtMuc
 					Zhang, Jianmin, et al. 
 					"Extracting minimal unsatisfiable subformulas in satisfiability modulo theories." 
 					Computer Science and Information Systems 8.3 (2011): 693-710.
+					
+	res_prop_muc - contains the results of Cimatti et al.'s method as implemented in Z3. This is the source of Table II of the fmcad paper. 
