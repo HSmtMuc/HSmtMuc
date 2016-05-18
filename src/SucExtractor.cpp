@@ -18,24 +18,20 @@ string hmucResFile;
 
 
 SucExtractor::SucExtractor(expr _formula, bool isHL, string filename) : formula(_formula), cm(formula, isHL), statistics(isHL) {
-	//syso(filename);
 	cnfFile = filename + ".cnf";
 	hmucResFile = cnfFile + ".core";
 
 }
 
 vector<expr> SucExtractor::extract() {
-	//LOG("start");
 	statistics.totalTime = std::clock();
 
 	solver s(Utils::get_ctx());
-	//LOG("initClauses");
 	cm.initClauses(s);
 	statistics.problemSize = cm.getNumConstraints();
 
 	statistics.z3AssumtionsInitialSolveTime = std::clock();
 	check_result isSat;
-	//LOG("init z3 check");
 	try {
 		vector<expr> assumptions = cm.getCurrAssumptions();
 		isSat = s.check(assumptions.size(), &assumptions[0]);
@@ -56,12 +52,15 @@ vector<expr> SucExtractor::extract() {
 		res.push_back(formula);
 		statistics.problemSize = 1;
 		statistics.z3InitialCoreSize = 1;
+		statistics.smallCoreSize = 1;
 		statistics.isUnsat = 1;
 		statistics.isMinimal = true;
+		statistics.numCnfLemmasExtracted = 0;
+		statistics.numLemmasExtracted = 0;
+		statistics.propositionalExtractionTime = 0;
 		statistics.totalTime = std::clock() - statistics.totalTime;
 		return res;
 	}
-	//LOG("z3 core");
 	expr_vector core = s.unsat_core();
 	statistics.z3InitialCoreSize = core.size();
 	vector<expr> clauses;
@@ -99,8 +98,6 @@ vector<expr> SucExtractor::extract() {
 	statistics.totalTime = std::clock() - statistics.totalTime;
 	
 	statistics.smallCoreSize = res.size();
-	//statistics.isUnsat = Utils::checkCoreUnsat(res);
-	//statistics.isMinimal = Utils::checkCoreMinimal(res);
 	return res;
 }
 
@@ -336,8 +333,6 @@ std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s
 		"### problemSize " << s.problemSize << std::endl <<
 		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
 		"### smallCoreSize " << s.smallCoreSize << std::endl <<
-		//"### isUnsat " << s.isUnsat << std::endl <<
-		//"### isMinimal " << s.isMinimal << std::endl <<
 		"### z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime << std::endl <<
 		"### totalTime " << s.totalTime << std::endl <<
 		"### numLemmasExtracted " << s.numLemmasExtracted << std::endl <<
@@ -345,18 +340,3 @@ std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s
 		
 	return out;
 }
-
-//std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s) {
-//	out <<
-//		"### isHL " << s.hl << std::endl <<
-//		"### problemSize " << s.problemSize << std::endl <<
-//		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
-//		"### smallCoreSize " << s.smallCoreSize << std::endl <<
-//		"### isUnsat " << -1 << std::endl <<
-//		"### isMinimal " << s.isMinimal << std::endl <<
-//		"### z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime << std::endl <<
-//		"### totalTime " << s.totalTime << std::endl <<
-//		"### numLemmasExtracted " << s.numLemmasExtracted << std::endl<<
-//	"### numCnfLemmasExtracted " << s.numCnfLemmasExtracted << std::endl;
-//	return out;
-//}

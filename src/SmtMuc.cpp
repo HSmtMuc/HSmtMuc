@@ -165,29 +165,11 @@ int main(int argc, char *argv[]) {
 		ArgParser parser;
 		if (parser.parse(argc, argv) != 0)
 			return -1;
-		//printArgs(parser);
-
-		//create_smt2_for_msat(parser.getInputFile(), parser.IsSmt2());
-
-		//unordered_set<string> core;
-		//int status = read_core_file(parser.getInputFile(), core);
-		//if (status != 0)
-		//	return 0;
-
-		//expr formula = create_problem(parser.getInputFile(), parser.IsSmt2(), core);
 		expr ast(Utils::get_ctx());
 		if (parser.IsSmt2())
 			ast = Utils::parse_smtlib2_file(parser.getInputFile());
 		else
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
-
-		//syso(ast);
-		//syso(ast.num_args());
-		//for (int i = 0; i < ast.num_args(); ++i) {
-		//	syso(ast.arg(i));
-		//	syso(Utils::convert_to_cnf(ast.arg(i)));
-		//}
-
 		SucExtractor ex(ast, parser.IsHighLevel(), parser.getInputFile());
 		vector<expr> res = ex.extract();
 		std::cout << ex.getStatistics() << std::endl;
@@ -195,59 +177,6 @@ int main(int argc, char *argv[]) {
 		std::cout << "### isUnsat " << isUnsat << std::endl;
 		bool isMinimal = Utils::checkCoreMinimal(res);
 		std::cout << "### isMinimal " << isMinimal << std::endl;
-
-
-
-
-		//clock_t coreExtractTime = std::clock();
-		//MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
-		//MucExtractor extractor(ast, parser.IsHighLevel(), info);
-
-		//vector<expr> res = extractor.extract();
-		//coreExtractTime = std::clock() - coreExtractTime;
-
-		//solver s(Utils::get_ctx());
-		//s.add(formula);
-		//clock_t solveTime = std::clock();
-		//s.check();
-		//solveTime = std::clock() - solveTime;
-
-		//MucExtractor::Statistics stats = extractor.getStatistics();
-		//ofstream log;
-		//string config = getConfigName(parser);
-		//log.open(parser.getLogFileName(), std::ofstream::out | std::ofstream::app);
-		//time_t normalized = 0;
-		//if (stats.z3AssumtionsInitialSolveTime > 0)
-		//	normalized = ((coreExtractTime - stats.z3AssumtionsInitialSolveTime) / stats.z3AssumtionsInitialSolveTime);
-		//log << 
-		//	config << "," <<
-		//	stats << "," << 
-		//	solveTime / (double)(CLOCKS_PER_SEC) << "," << 
-		//	coreExtractTime / (double)(CLOCKS_PER_SEC) << "," << 
-		//	(coreExtractTime-stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << "," <<
-		//	normalized / (double)(CLOCKS_PER_SEC) << "," <<
-		//	parser.getInputFile() 
-		//<< std::endl;
-		//log.close();
-
-		//std::cout <<
-		//	stats <<
-		//	"### noAssumptionsCheckTime " << solveTime / (double)(CLOCKS_PER_SEC) << std::endl <<
-		//	"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
-		//	"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
-		//	"### totalTimeNormalized " << normalized << std::endl;
-
-
-		//std::cout << "Found minimal core of size " << res.size() << std::endl;
-		//for (int i = 0; i < res.size(); ++i) {
-		//	std::cout << "Core Element " << i << ": " << res[i] << std::endl;
-		//}
-//#ifdef DEBUG
-/*"### isUnsat " << s.isUnsat << std::endl <<
-"### isMinimal " << s.isMinimal << std::endl <<*/
-
-		//Utils::checkCoreMinimal(res);
-//#endif // DEBUG
 
 	} catch (const MucExtractor::MucException& e) {
 		std::cerr << e << std::endl;
