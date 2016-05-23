@@ -68,11 +68,11 @@ int main(int argc, char *argv[]) {
 		vector<expr> res = extractor.extract();
 		coreExtractTime = std::clock() - coreExtractTime;
 
-		solver s(Utils::get_ctx());
-		s.add(ast);
-		clock_t solveTime = std::clock();
-		s.check();
-		solveTime = std::clock() - solveTime;
+		//solver s(Utils::get_ctx());
+		//s.add(ast);
+		//clock_t solveTime = std::clock();
+		//s.check();
+		//solveTime = std::clock() - solveTime;
 
 		MucExtractor::Statistics stats = extractor.getStatistics();
 		//ofstream log;
@@ -94,7 +94,6 @@ int main(int argc, char *argv[]) {
 
 		std::cout <<
 			stats <<
-			"### noAssumptionsCheckTime " << solveTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 			"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 			"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
 			"### totalTimeNormalized " << normalized << std::endl;

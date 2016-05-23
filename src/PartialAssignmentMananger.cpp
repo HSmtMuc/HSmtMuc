@@ -5,7 +5,7 @@ using std::stringstream;
 
 
 PartialAssignmentMananger::PartialAssignmentMananger(vector<Var>& vars,
-	unordered_map<Var, vid, VarHash>& Var2VarIdx, ClauseManager& cm) : AssignmentMananger(vars, Var2VarIdx, cm),
+	unordered_map<Var, vid, VarHash>& Var2VarIdx, ConstraintManager& cm) : AssignmentMananger(vars, Var2VarIdx, cm),
 	nopAssumption(Utils::get_ctx().bool_const("nopmuc")) {}
 PartialAssignmentMananger::~PartialAssignmentMananger(){}
 
@@ -16,12 +16,12 @@ void PartialAssignmentMananger::setModel(model& _m) {
 	watchers.clear();
 
 	for (expr p : cm.getCurrAssumptions()) {
-		cid cId = cm.getClauseId(p);
-		if (cId == CL_UNDEF) {
+		cid cId = cm.getConstraintId(p);
+		if (cId == C_UNDEF) {
 			//std::cout << "Undef cid: " << p << std::endl;
 			continue;
 		}
-		expr c = cm.getClause(cId);
+		expr c = cm.getConstraint(cId);
 		if (c.decl().decl_kind() != Z3_OP_OR) {
 			Var v(c);
 			vid id = Var2VarIdx[v];
@@ -110,7 +110,7 @@ bool PartialAssignmentMananger::getLitValue(expr lit) {
 	return BoolAssignment[id];
 }
 
-bool PartialAssignmentMananger::isClauseSat(cid id) {
+bool PartialAssignmentMananger::isClauseSat(clid id) {
 	expr c = cm.getClause(id);
 	if (c.decl().decl_kind() != Z3_OP_OR) {
 		return getLitValue(c);

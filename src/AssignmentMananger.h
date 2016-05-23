@@ -22,12 +22,12 @@ protected:
 	vector<Var>& vars;
 	unordered_map<Var, vid, VarHash>& Var2VarIdx;
 
-	ClauseManager& cm;
+	ConstraintManager& cm;
 	/** watcher mapping for each clause **/
 	unordered_map<cid, unsigned> watchers;
 
 public:
-	AssignmentMananger(vector<Var>& vars, unordered_map<Var, vid, VarHash>& Var2VarIdx, ClauseManager& cm);
+	AssignmentMananger(vector<Var>& vars, unordered_map<Var, vid, VarHash>& Var2VarIdx, ConstraintManager& cm);
 	virtual ~AssignmentMananger();
 
 	virtual void setModel(model& m) = 0;

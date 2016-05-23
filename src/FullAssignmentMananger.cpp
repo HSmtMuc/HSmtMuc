@@ -5,7 +5,7 @@ using std::stringstream;
 using std::to_string;
 
 FullAssignmentMananger::FullAssignmentMananger(vector<Var>& vars, 
-	unordered_map<Var, vid, VarHash>& Var2VarIdx, ClauseManager& cm) : 
+	unordered_map<Var, vid, VarHash>& Var2VarIdx, ConstraintManager& cm) : 
 	AssignmentMananger(vars, Var2VarIdx, cm) {
 	
 	qAssumption2Var.reserve(vars.size());
@@ -63,7 +63,7 @@ void FullAssignmentMananger::setCurrentqAssumption(vid qIdx, bool val) {
 	}
 }
 
-bool FullAssignmentMananger::isClauseSat(cid id) {
+bool FullAssignmentMananger::isClauseSat(clid id) {
 	expr c = cm.getClause(id);
 	if (c.decl().decl_kind() != Z3_OP_OR) {
 		return getLitValue(c);

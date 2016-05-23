@@ -2,22 +2,22 @@
 #include <fstream>
 using std::stringstream;
 using std::to_string;
-ClauseManager::ClauseManager(expr& _formula, bool _isHLC) : 
+ConstraintManager::ConstraintManager(expr& _formula, bool _isHLC) : 
 	formula(_formula), isHLC(_isHLC), nopAssumption(Utils::get_ctx().bool_const("nopmuc")) {
 }
 
 
 
-ClauseManager::~ClauseManager()
+ConstraintManager::~ConstraintManager()
 {
 }
-void ClauseManager::initClauses(solver& s) {
+void ConstraintManager::initClauses(solver& s) {
 	if (!isHLC)
 		formula = Utils::convert_to_cnf(formula);
 
 	if (formula.decl().decl_kind() != Z3_OP_AND) {
 		problemSize = 1;
-		addClause(formula, s);
+		addConstraint(formula, s);
 		return;
 	}
 	problemSize = formula.num_args();
@@ -29,17 +29,33 @@ void ClauseManager::initClauses(solver& s) {
 	id2CnfConstraint.reserve(problemSize);
 
 	for (cid i = 0; i < problemSize; i++) {
-		addClause(formula.arg(i), s);
+		addConstraint(formula.arg(i), s);
 	}
 
 }
 
-void ClauseManager::addClause(expr constraint, solver& s) {
-	int idx = id2Constraint.size();
+void ConstraintManager::addConstraint(expr constraint, solver& s) {
+	cid idx = id2Constraint.size();
 	expr pi = Utils::get_ctx().bool_const(string("pmuc"+to_string(idx)).c_str());
 	id2Constraint.push_back(constraint);
 	if (isHLC)
 		constraint = Utils::convert_to_cnf(constraint);
+
+	vector<clid> clauses;
+	if (constraint.decl().decl_kind() == Z3_OP_AND) {
+		for (int i = 0; i < constraint.num_args(); ++i) {
+			clauses.push_back(clid2Clause.size());
+			clid2Clause.push_back(constraint.arg(i));
+			clid2Cid.push_back(idx);
+		}
+	}
+	else {
+		clauses.push_back(clid2Clause.size());
+		clid2Clause.push_back(constraint);
+		clid2Cid.push_back(idx);
+	}
+	cid2clauses.push_back(clauses);
+
 	s.add(!pi || constraint);
 	//s.add(pi || !constraint);
 	id2CnfConstraint.push_back(constraint);
@@ -47,21 +63,22 @@ void ClauseManager::addClause(expr constraint, solver& s) {
 	currentAssumptions.push_back(pi);
 	p2Id[pi] = idx;
 }
-vector<expr>& ClauseManager::getCurrAssumptions() {
+
+vector<expr>& ConstraintManager::getCurrAssumptions() {
 	return currentAssumptions;
 }
 
 
-cid ClauseManager::getClauseId(expr assumption) {
+cid ConstraintManager::getConstraintId(expr assumption) {
 	if (eq(nopAssumption,assumption) || p2Id.find(assumption) == p2Id.end())
-		return CL_UNDEF;
+		return C_UNDEF;
 	return p2Id[assumption];
 }
-int ClauseManager::getNumConstraints(){
+int ConstraintManager::getNumConstraints(){
 	return problemSize;
 }
 
-void ClauseManager::updateAssumptions(unordered_set<cid>& unmarked, unordered_set<cid>& marked) {
+void ConstraintManager::updateAssumptions(unordered_set<cid>& unmarked, unordered_set<cid>& marked) {
 	for (unsigned currIdx = 0; currIdx < currentAssumptions.size(); ++currIdx) {
 		expr& assumption = currentAssumptions[currIdx];
 		cid id = CurrentIdx2Id[currIdx];
@@ -69,7 +86,7 @@ void ClauseManager::updateAssumptions(unordered_set<cid>& unmarked, unordered_se
 			currentAssumptions[currIdx] = nopAssumption;
 	}
 }
-void  ClauseManager::resetSolver(solver& s, const expr_vector& core) {
+void  ConstraintManager::resetSolver(solver& s, const expr_vector& core) {
 	s.reset();
 	currentAssumptions.clear();
 	currentAssumptions.reserve(core.size());
@@ -86,27 +103,40 @@ void  ClauseManager::resetSolver(solver& s, const expr_vector& core) {
 	}
 }
 
-expr& ClauseManager::getClauseAssumption(cid id) {
+expr& ConstraintManager::getConstraintAssumption(cid id) {
 	return id2AssumptionP[id];
 }
 
-expr& ClauseManager::getClause(cid id) {
+expr& ConstraintManager::getConstraint(cid id) {
 	return id2CnfConstraint[id];
 }
 
-void ClauseManager::deactivateAssumption(cid id) {
-	expr p = getClauseAssumption(id);
+void ConstraintManager::deactivateAssumption(cid id) {
+	expr p = getConstraintAssumption(id);
 	currentAssumptions[Id2CurrentIdx[id]] = !p;
 }
-void ClauseManager::activateAssumption(cid id) {
-	expr p = getClauseAssumption(id);
+void ConstraintManager::activateAssumption(cid id) {
+	expr p = getConstraintAssumption(id);
 	currentAssumptions[Id2CurrentIdx[id]] = p;
 }
 
-void ClauseManager::removeAssumption(cid id) {
+void ConstraintManager::removeAssumption(cid id) {
 	currentAssumptions[Id2CurrentIdx[id]] = nopAssumption;
 }
 
-expr& ClauseManager::getOriginalClause(cid id) {
+expr& ConstraintManager::getOriginalConstraint(cid id) {
 	return id2Constraint[id];
+}
+
+
+expr& ConstraintManager::getClause(clid id) {
+	return clid2Clause[id];
+}
+
+vector<clid>& ConstraintManager::getClauseList(cid id) {
+	return cid2clauses[id];
+}
+
+cid ConstraintManager::getConstraintIdFromClause(clid id) {
+	return clid2Cid[id];
 }

@@ -6,7 +6,10 @@
 using std::unordered_map;
 using std::unordered_set;
 
-class ClauseManager {
+typedef int cid; // constraint id
+typedef int clid; // clause id
+
+class ConstraintManager {
 	int problemSize;
 	bool isHLC;
 	vector<expr> id2AssumptionP;
@@ -17,22 +20,30 @@ class ClauseManager {
 	vector<expr> id2Constraint;
 	vector<expr> id2CnfConstraint;
 
+	vector<vector<clid>> cid2clauses;
+	vector<expr> clid2Clause;
+	vector<cid> clid2Cid;
+
 	expr formula;
 
 
-	void addClause(expr c, solver& s);
+	void addConstraint(expr c, solver& s);
 
 public:
 	expr nopAssumption;
-	ClauseManager(expr& formula, bool _isHLC);
-	~ClauseManager();
+	ConstraintManager(expr& formula, bool _isHLC);
+	~ConstraintManager();
 	void initClauses(solver& s);
 	int getNumConstraints();
-	cid getClauseId(expr assumption);
-	expr& getClauseAssumption(cid id);
-	expr& getClause(cid id);
-	expr& getOriginalClause(cid id);
+	cid getConstraintId(expr assumption);
+	expr& getConstraintAssumption(cid id);
+	expr& getConstraint(cid id);
+	expr& getOriginalConstraint(cid id);
 	vector<expr>& getCurrAssumptions();
+
+	vector<clid>& getClauseList(cid id);
+	expr& getClause(clid id);
+	cid getConstraintIdFromClause(clid id);
 
 	void activateAssumption(cid id);
 	void deactivateAssumption(cid id);
