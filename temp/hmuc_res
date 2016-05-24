@@ -1,0 +1,20 @@
+input: ..\temp\temp.cnf
+UNSAT (normal)
+nictoremove = 44
+removing (c)  (16 6 )
+Top clause (0 6 16 )
+*** in process lpf = 3
+SAT
+Rotate...
+### time 0
+Summary: 1 11 1 11 10 0 3
+### lpf_literals 3
+### UNSAT_by_pf 0
+### iter 1
+### true_assump_ratio 0.666667
+### nettime 0
+### longestcall 0
+v 1 2 3 4 5 8 9 10 12 13 45 0
+### decisions 12
+### pf_time 0
+s UNSATISFIABLE

@@ -87,7 +87,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>libz3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>c:\z3\z3-master\build\libz3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,7 +109,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libz3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>c:\z3\z3-master\build\libz3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -135,6 +135,7 @@
     <ClCompile Include="MucExtractor.cpp" />
     <ClCompile Include="PartialAssignmentMananger.cpp" />
     <ClCompile Include="SmtMuc.cpp" />
+    <ClCompile Include="SucExtractor.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Var.cpp" />
   </ItemGroup>
@@ -145,6 +146,7 @@
     <ClInclude Include="FullAssignmentMananger.h" />
     <ClInclude Include="MucExtractor.h" />
     <ClInclude Include="PartialAssignmentMananger.h" />
+    <ClInclude Include="SucExtractor.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Var.h" />
   </ItemGroup>

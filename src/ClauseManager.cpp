@@ -13,7 +13,7 @@ ConstraintManager::~ConstraintManager()
 }
 void ConstraintManager::initClauses(solver& s) {
 	if (!isHLC)
-		formula = Utils::convert_to_cnf_simplify(formula);
+		formula = Utils::convert_to_cnf_simplified(formula);
 
 	if (formula.decl().decl_kind() != Z3_OP_AND) {
 		problemSize = 1;
@@ -39,7 +39,7 @@ void ConstraintManager::addConstraint(expr constraint, solver& s) {
 	expr pi = Utils::get_ctx().bool_const(string("pmuc"+to_string(idx)).c_str());
 	id2Constraint.push_back(constraint);
 	if (isHLC)
-		constraint = Utils::convert_to_cnf_simplify(constraint);
+		constraint = Utils::convert_to_cnf_simplified(constraint);
 
 	vector<clid> clauses;
 	if (constraint.decl().decl_kind() == Z3_OP_AND) {
