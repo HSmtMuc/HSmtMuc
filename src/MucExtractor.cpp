@@ -20,8 +20,11 @@ using std::set_intersection;
 
 
 MucExtractor::MucExtractor(expr _formula, bool _isHL, RotationInfo _rotationInfo)
-	: formula(_formula), isHL(_isHL), rotationInfo(_rotationInfo), statistics(isHL, rotationInfo),
+	: formula(_formula), isHL(_isHL), rotationInfo(_rotationInfo), statistics(_isHL, _rotationInfo),
 		cm(_formula, _isHL), am(NULL) {
+
+	//LOG(rotationInfo.rotate);
+
 	if (rotationInfo.flippingThreshold < 0)
 		rotationInfo.flippingThreshold = DEFAULT_FLIPPING_THRESHOLD;
 }
@@ -46,7 +49,7 @@ vector<expr> MucExtractor::extract() {
 		statistics.z3InitialCoreSize = 1;
 		return res;
 	}
-
+	//LOG(statistics.problemSize);
 	statistics.z3AssumtionsInitialSolveTime = std::clock();
 
 	check_result isSat;
@@ -60,22 +63,12 @@ vector<expr> MucExtractor::extract() {
 	if (isSat != unsat) {
 		throw MucException("Problem is not unsat!");
 	}
-
-	//if (cm.getNumConstraints() <= 1) {
-	//	std::cout << "Trivial UC" << std::endl;
-	//	vector<expr> res;
-	//	res.push_back(formula);
-	//	statistics.problemSize = 1;
-	//	statistics.minimalCoreSize = 1;
-	//	statistics.z3InitialCoreSize = 1;
-	//	return res;
-	//}
 	
 	expr_vector core = s.unsat_core();
 	statistics.z3InitialCoreSize = core.size();
 	initUnmarked(core); //Initially set unmarked:=core
 	cm.resetSolver(s, core);
-
+	//std::cout << rotationInfo.rotate << std::endl;
 	if (rotationInfo.rotate) {
 		initLiteralMapping();
 		if (rotationInfo.assignmentBuildingMethod == 0)

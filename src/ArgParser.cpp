@@ -4,8 +4,8 @@
 #include <climits>
 
 
-ArgParser::ArgParser() : smt2(false), hl(false), rotate(false), eager(false), flippingThreshold(-1), timeOut(-1), 
-	assignmentBuildingMethod(0), rotatet(UINT_MAX), boundRotation(false), logFileName(""), fileName(""){
+ArgParser::ArgParser() : smt2(false), hl(false), rotate(true), eager(false), flippingThreshold(-1), timeOut(-1), 
+	assignmentBuildingMethod(0), rotatet(UINT_MAX), boundRotation(false), logFileName(""), fileName(""), extractMUC(true){
 }
 
 
@@ -27,8 +27,12 @@ int ArgParser::parse(int argc, char *argv[]) {
 			smt2 = false;
 		else if (arg == "-hlmuc")
 			hl = true;
-		else if (arg == "-rotate")
-			rotate = true;
+		else if (arg == "-core-no-min") {
+			extractMUC = false;
+
+		}
+		else if (arg == "-no-rotate")
+			rotate = false;
 		else if (arg == "-eager")
 			eager = true;
 		else if (arg == "-fth") {
@@ -46,20 +50,20 @@ int ArgParser::parse(int argc, char *argv[]) {
 			}
 		}
 
-		else if (arg == "-abm") {
-			i++;
-			if (i < argc) {
-				try {
-					assignmentBuildingMethod = atoi(argv[i]);
+		//else if (arg == "-abm") {
+		//	i++;
+		//	if (i < argc) {
+		//		try {
+		//			assignmentBuildingMethod = atoi(argv[i]);
 
-				}
-				catch (...) {
-					std::cout << "ERROR: Non integer argument for -abm " << argv[i] << "\n\n" << std::endl;
-					printUsage();
-					return -1;
-				}
-			}
-		}
+		//		}
+		//		catch (...) {
+		//			std::cout << "ERROR: Non integer argument for -abm " << argv[i] << "\n\n" << std::endl;
+		//			printUsage();
+		//			return -1;
+		//		}
+		//	}
+		//}
 		else if (arg == "-rotatet") {
 			i++;
 			if (i < argc) {
@@ -119,7 +123,10 @@ int ArgParser::parse(int argc, char *argv[]) {
 		printUsage();
 		return -1;
 	}
+	//LOG(rotate);
 	return 0;
+
+
 }
 
 bool ArgParser::IsSmt2() const {
@@ -166,22 +173,29 @@ string ArgParser::getLogFileName() const {
 	return logFileName;
 }
 
+
+bool ArgParser::isExtractMUC() {
+	return extractMUC;
+}
+
+
 void ArgParser::printUsage() const {
 	std::cout <<
-		"USAGE: smt_muc [-h] [-smt2] [-smt] [-hlmuc] [-rotate] [-eager] [-fth <num>] [-time <num>] [-log <logFileName>] -file <fileName>\n\n"
-		"	Get an smt minimal unsat core\n\n"
+		"USAGE: smt_unsat_core_extractor [-h] [-smt2] [-smt] [-hlmuc] [-no-rotate] [-eager] [-core-size <num>] [-fth <num>] [-time <num>] [-log <logFileName>] -file <fileName>\n\n"
+		"	Get an smt minimal\small unsat core\n\n"
 		"	Mandatory arguments:\n"
-		"		-file <fileName>    Input file name\n\n"
+		"		-file <fileName>	Input file name\n\n"
 		"	Optional arguments:\n"
 		"		-h, --help			Show this help message and exit\n"
-		"		-smt2				Use parser for SMT 2 input format\n"
-		"		-smt				Use parser for SMT 1 input format\n"
-		"		-hlmuc				Use high-level constraints instead of translating to CNF"
-		"		-rotate				Use rotation" 
-		"		-eager				Use eager rotation"
-		"		-fth <num>			Set flipping threshold (during rotation) to num. Default: "<< DEFAULT_FLIPPING_THRESHOLD <<
-		"		-abm <num>			Set assignment building method (during rotation) to num. Default: " << DEFAULT_ASSIGNMENT_BUILDING <<
-		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)"
+		"		-smt2				Use parser for SMT-LIB2 input format\n"
+		"		-smt				Use parser for SMT-LIB input format\n"
+		"		-hlmuc				Use high-level constraints instead of translating to CNF (DEFAULT NOT USED) (Only relevent when -core-no-min off)\n"
+		"		-no-rotate			Don't use Theory Rotation (Only relevent when -core-no-min is used)\n"
+		"		-eager				Use eager rotation (DEFAULT NOT USED)\n"
+		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default)"
+		"		-fth <num>			Set flipping threshold (during rotation) to num. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
+		//"		-abm <num>			Set assignment building method (during rotation) to num. Default: " << DEFAULT_ASSIGNMENT_BUILDING <<
+		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)\n"
 		"		-log <logFileName>	Direct log printing to file. Default: standard output." << std::endl;
 }
 

@@ -54,6 +54,7 @@ int main(int argc, char *argv[]) {
 		if (parser.parse(argc, argv) != 0)
 			return -1;
 		//printArgs(parser);
+		//LOG(parser.Rotate());
 
 		clock_t coreExtractTime = std::clock();
 
@@ -62,8 +63,11 @@ int main(int argc, char *argv[]) {
 			ast = Utils::parse_smtlib2_file(parser.getInputFile());
 		else
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
-
+		//for (int i = 0; i < ast.num_args(); i++)
+		//LOG(ast.arg(i));
 		MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
+		//LOG(info.rotate);
+
 		MucExtractor extractor(ast, parser.IsHighLevel(), info);
 		vector<expr> res = extractor.extract();
 		coreExtractTime = std::clock() - coreExtractTime;
@@ -92,7 +96,7 @@ int main(int argc, char *argv[]) {
 		//<< std::endl;
 		//log.close();
 
-		std::cout <<
+		std::cout << "### isMUCExtraction " << parser.isExtractMUC()  << std::endl <<
 			stats <<
 			"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 			"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<

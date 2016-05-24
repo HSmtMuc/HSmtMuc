@@ -43,7 +43,9 @@ public:
 		bool boundRotation;
 		RotationInfo(bool _rotate, bool _eager, int _flippingThreshold, int _assignmentBuildingMethod, unsigned _tries, bool _boundRotation) :
 			rotate(_rotate), eager(_eager), flippingThreshold(_flippingThreshold), assignmentBuildingMethod(_assignmentBuildingMethod), 
-			tries(_tries), boundRotation(_boundRotation) {}
+			tries(_tries), boundRotation(_boundRotation) {
+
+		}
 
 		friend std::ostream & operator<<(std::ostream & out, RotationInfo const & info);
 	};
@@ -69,7 +71,10 @@ public:
 
 		Statistics(bool _hl, RotationInfo _info)
 			: hl(_hl), info(_info), problemSize(0), z3InitialCoreSize(0), minimalCoreSize(0), numIterations(0), 
-				numRotationCalls(0), numClausesMarkedByRotations(0), numTheoryChecks(0), totalTheoryChecksTime(0), numTheoryConflictResolves(0), z3AssumtionsInitialSolveTime(0),numWatcherHit(0), numWatcherMiss(0) {}
+				numRotationCalls(0), numClausesMarkedByRotations(0), numTheoryChecks(0), totalTheoryChecksTime(0), numTheoryConflictResolves(0), z3AssumtionsInitialSolveTime(0),numWatcherHit(0), numWatcherMiss(0) {
+			//LOG(_info.rotate);
+			//LOG(info.rotate);
+		}
 
 		friend std::ostream & operator<<(std::ostream & out, Statistics const & s);
 	};

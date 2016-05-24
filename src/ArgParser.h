@@ -23,6 +23,7 @@ public:
 	bool BoundRotation() const;
 	string getInputFile() const;
 	string getLogFileName() const;
+	bool isExtractMUC();
 private:
 	void printUsage() const;
 	void missingFile() const;
@@ -37,5 +38,6 @@ private:
 	bool boundRotation;
 	string fileName;
 	string logFileName;
+	bool extractMUC;
 };
 

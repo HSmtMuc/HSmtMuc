@@ -31,8 +31,15 @@ expr Utils::parse_smtlib_file(string fileName) {
 		return to_expr(ctx, args[0]);
 	return m_and(args);
 }
-
 expr Utils::convert_to_cnf(const expr& e) {
+	context& ctx = get_ctx();
+	tactic t = tactic(ctx, "tseitin-cnf");
+	goal g(ctx);
+	g.add(e);
+	apply_result r = t(g);
+	return r[0].as_expr();
+}
+expr Utils::convert_to_cnf_simplify(const expr& e) {
 	context& ctx = get_ctx();
 	tactic t = tactic(ctx, "simplify") & tactic(ctx, "tseitin-cnf") & tactic(ctx, "simplify");
 	goal g(ctx);
