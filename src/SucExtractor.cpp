@@ -11,7 +11,15 @@ using std::ifstream;
 string hmuc = "hmuc.exe";
 string cnfFile;
 string hmucResFile;
-
+//#include <windows.h>
+//#include <string>
+//
+//string ExePath() {
+//	char buffer[MAX_PATH];
+//	GetModuleFileName(NULL, buffer, MAX_PATH);
+//	string::size_type pos = string(buffer).find_last_of("\\/");
+//	return string(buffer).substr(0, pos);
+//}
 
 
 
@@ -173,7 +181,7 @@ void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 }
 vector<expr> SucExtractor::runSatMUC(const vector<expr>& originalClauses, Statistics& stat) {
 	stat.propositionalExtractionTime = std::clock();
-	std::system(string(hmuc+" -muc-print-sol -no-muc-rotate " + cnfFile + ">" + hmucResFile).c_str());
+	std::system(string(hmuc+" -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
 	stat.propositionalExtractionTime = std::clock() - stat.propositionalExtractionTime;
 	return parseHmucRes(originalClauses);
 }

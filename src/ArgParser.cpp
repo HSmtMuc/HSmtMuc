@@ -14,6 +14,7 @@ ArgParser::~ArgParser()
 }
 
 int ArgParser::parse(int argc, char *argv[]) {
+
 	bool FileProvided = false;
 	for (int i = 1; i < argc; ++i) {
 		string arg = string(argv[i]);
@@ -27,7 +28,7 @@ int ArgParser::parse(int argc, char *argv[]) {
 			smt2 = false;
 		else if (arg == "-hlmuc")
 			hl = true;
-		else if (arg == "-core-no-min") {
+		else if (arg == "-core-not-min") {
 			extractMUC = false;
 
 		}
