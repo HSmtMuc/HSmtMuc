@@ -10,7 +10,8 @@ using std::vector;
 using std::unordered_set;
 using namespace z3;
 #define LOG(m) std::cout << __func__ << ": " << m << std::endl;
-#define DEFAULT_FLIPPING_THRESHOLD 2
+#define DEFAULT_FLIPPING_THRESHOLD 1
+#define DEFAULT_ROTATION_TRIES 5
 #define DEFAULT_ASSIGNMENT_BUILDING 0
 
 #define C_UNDEF -1

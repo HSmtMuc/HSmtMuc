@@ -4,8 +4,9 @@
 #include <climits>
 
 
-ArgParser::ArgParser() : smt2(false), hl(false), rotate(true), eager(false), flippingThreshold(-1), timeOut(-1), 
-	assignmentBuildingMethod(0), rotatet(UINT_MAX), boundRotation(false), logFileName(""), fileName(""), extractMUC(true){
+ArgParser::ArgParser() : smt2(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1), 
+	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), //default best value
+	boundRotation(false), logFileName(""), fileName(""), extractMUC(true){
 }
 
 
@@ -193,7 +194,9 @@ void ArgParser::printUsage() const {
 		"		-hlmuc				Use high-level constraints instead of translating to CNF (DEFAULT NOT USED) (Only relevent when -core-no-min off)\n"
 		"		-no-rotate			Don't use Theory Rotation (Only relevent when -core-no-min is used)\n"
 		"		-eager				Use eager rotation (DEFAULT NOT USED)\n"
-		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default)"
+		"		-boundRot			Use exponential smoothing as a rotation bounding strategy. (DEFAULT NOT USED)\n "
+		"		-rotatet <num>		Limit to <num> the number of consecutive rotation failures before stopping all rotation attempts. Defualt: " << DEFAULT_ROTATION_TRIES  << " (Only relevent when -core-not-min off)\n"
+		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default)\n"
 		"		-fth <num>			Set flipping threshold (during rotation) to num. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
 		//"		-abm <num>			Set assignment building method (during rotation) to num. Default: " << DEFAULT_ASSIGNMENT_BUILDING <<
 		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)\n"
