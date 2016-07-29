@@ -33,7 +33,9 @@ void FullAssignmentMananger::setModel(model& m) {
 
 	for (vid id = 0; id < vars.size(); ++id) {
 		Var v = vars[id];
+		//LOG(v.asExpr());
 		expr value = m.eval(v.asExpr());
+		//LOG(value);
 		assert(value.is_bool());
 		bool val = value.decl().decl_kind() == Z3_OP_TRUE;
 		BoolAssignment[id] = val;

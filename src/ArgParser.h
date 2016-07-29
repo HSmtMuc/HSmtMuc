@@ -6,9 +6,14 @@ using std::string;
 using std::ostream;
 using std::ofstream;
 
+typedef enum { // the type of extraction process to run as taken from input flags
+	MUC, SUC, HYB
+}ExtractType;
+
 class ArgParser
 {
 public:
+
 	ArgParser();
 	~ArgParser();
 	int parse(int argc, char *argv[]);
@@ -23,7 +28,8 @@ public:
 	bool BoundRotation() const;
 	string getInputFile() const;
 	string getLogFileName() const;
-	bool isExtractMUC();
+	//bool isExtractMUC();
+	ExtractType getExtractType();
 private:
 	void printUsage() const;
 	void missingFile() const;
@@ -38,6 +44,7 @@ private:
 	bool boundRotation;
 	string fileName;
 	string logFileName;
-	bool extractMUC;
+	//bool extractMUC;
+	ExtractType exType;
 };
 

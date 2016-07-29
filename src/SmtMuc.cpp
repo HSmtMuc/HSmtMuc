@@ -25,38 +25,72 @@ int main(int argc, char *argv[]) {
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
 
 		vector<expr> res;
-		if (parser.isExtractMUC()) {
-			MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
 
-			MucExtractor extractor(ast, parser.IsHighLevel(), info);
-			res = extractor.extract();
-			coreExtractTime = std::clock() - coreExtractTime;
-			MucExtractor::Statistics stats = extractor.getStatistics();
+		switch (parser.getExtractType()) {
+			case MUC: {
+
+				MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
+
+				MucExtractor extractor(ast, parser.IsHighLevel(), info);
+				res = extractor.extract();
+				coreExtractTime = std::clock() - coreExtractTime;
+				MucExtractor::Statistics stats = extractor.getStatistics();
 
 
-			time_t normalized = 0;
-			if (stats.z3AssumtionsInitialSolveTime > 0)
-				normalized = ((coreExtractTime - stats.z3AssumtionsInitialSolveTime) / stats.z3AssumtionsInitialSolveTime);
+				time_t normalized = 0;
+				if (stats.z3AssumtionsInitialSolveTime > 0)
+					normalized = ((coreExtractTime - stats.z3AssumtionsInitialSolveTime) / stats.z3AssumtionsInitialSolveTime);
 
-			std::cout << "### isMUCExtraction " << parser.isExtractMUC() << std::endl <<
-				stats <<
-				"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
-				"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
-				"### totalTimeNormalized " << normalized << std::endl;
+				std::cout << "### isMUCExtraction " << (parser.getExtractType() == MUC) << std::endl <<
+					stats <<
+					"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
+					"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
+					"### totalTimeNormalized " << normalized << std::endl;
+				break;
+			}
+		
+			case SUC: { //SUCExtraction
+				SucExtractor ex(ast, parser.IsHighLevel(), parser.getInputFile());
+				res = ex.extract();
+				std::cout << "### isMUCExtraction " << (parser.getExtractType() == MUC) << std::endl
+					<< ex.getStatistics() << std::endl;
+				bool isUnsat = Utils::checkCoreUnsat(res);
+				std::cout << "### isUnsat " << isUnsat << std::endl;
+				bool isMinimal = Utils::checkCoreMinimal(res);
+				std::cout << "### isMinimal " << isMinimal << std::endl;
+				break;
+			}
+			case HYB: {
+				SucExtractor suc_ex(ast, parser.IsHighLevel(), parser.getInputFile());
+				res = suc_ex.extract();
+				clock_t sucExtractionTime = std::clock() - coreExtractTime;
+				ast = Utils::convert_to_cnf_simplified(Utils::m_and(res));
+				MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
+				MucExtractor muc_ex(ast, parser.IsHighLevel(), info);
+				res = muc_ex.extract();
+				clock_t mucExtractionTime = std::clock() - sucExtractionTime;
+				coreExtractTime = sucExtractionTime + mucExtractionTime;
+				SucExtractor::Statistics suc_stats = suc_ex.getStatistics();
+				MucExtractor::Statistics muc_stats = muc_ex.getStatistics();
 
+
+				time_t normalized = 0;
+				if (suc_stats.z3AssumtionsInitialSolveTime > 0)
+					normalized = ((coreExtractTime - suc_stats.z3AssumtionsInitialSolveTime) / suc_stats.z3AssumtionsInitialSolveTime);
+
+				std::cout << "### extractType " << parser.getExtractType() << std::endl <<
+					suc_stats <<
+					"### suc_ExtractTime " << sucExtractionTime / (double)(CLOCKS_PER_SEC) << std::endl <<
+					muc_stats <<
+					"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
+					"### totalTimeNoInitialCheck " << (coreExtractTime - suc_stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
+					"### totalTimeNormalized " << normalized << std::endl;
+
+
+			}
 		}
-		else { //SUCExtraction
-			SucExtractor ex(ast, parser.IsHighLevel(), parser.getInputFile());
-			res = ex.extract();
-			std::cout << "### isMUCExtraction " << parser.isExtractMUC() << std::endl
-			 << ex.getStatistics() << std::endl;
-			bool isUnsat = Utils::checkCoreUnsat(res);
-			std::cout << "### isUnsat " << isUnsat << std::endl;
-			bool isMinimal = Utils::checkCoreMinimal(res);
-			std::cout << "### isMinimal " << isMinimal << std::endl;
-		}
 
-		string suffix = parser.isExtractMUC() ? (parser.IsHighLevel() ? ".hlmuc" : ".muc") : ".pmuc";
+		string suffix = (parser.getExtractType() == MUC || parser.getExtractType() == HYB) ? (parser.IsHighLevel() ? ".hlmuc" : ".muc") : ".pmuc";
 		ofstream resFile;
 		resFile.open(parser.getInputFile() + suffix, std::ios::out);
 		for (expr c : res) {

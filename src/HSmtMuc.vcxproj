@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="14.0">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -70,14 +70,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>c:\z3\Z3-MASTER\src\api\c++;c:\z3\Z3-MASTER\src\api;$(IncludePath)</IncludePath>
-    <ExecutablePath>c:\z3\Z3-MASTER\build;$(ExecutablePath)</ExecutablePath>
-    <LibraryPath>c:\z3\Z3-MASTER\build;$(LibraryPath)</LibraryPath>
+    <IncludePath>c:\z3\z3-master\src\api\c++;c:\z3\z3-master\src\api;$(IncludePath)</IncludePath>
+    <ExecutablePath>c:\z3\z3-master\build;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>c:\z3\z3-master\build;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ExecutablePath>c:\z3\Z3-MASTER\build;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>c:\z3\Z3-MASTER\src\api\c++;c:\z3\Z3-MASTER\src\api;$(IncludePath)</IncludePath>
-    <LibraryPath>c:\z3\Z3-MASTER\build;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>c:\z3\z3-master\build;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>c:\z3\z3-master\src\api\c++;c:\z3\z3-master\src\api;$(IncludePath)</IncludePath>
+    <LibraryPath>c:\z3\z3-master\build;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -132,6 +132,7 @@
     <ClCompile Include="AssignmentMananger.cpp" />
     <ClCompile Include="ClauseManager.cpp" />
     <ClCompile Include="FullAssignmentMananger.cpp" />
+    <ClCompile Include="HybridExtractor.cpp" />
     <ClCompile Include="MucExtractor.cpp" />
     <ClCompile Include="PartialAssignmentMananger.cpp" />
     <ClCompile Include="SmtMuc.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="AssignmentMananger.h" />
     <ClInclude Include="ClauseManager.h" />
     <ClInclude Include="FullAssignmentMananger.h" />
+    <ClInclude Include="HybridExtractor.h" />
     <ClInclude Include="MucExtractor.h" />
     <ClInclude Include="PartialAssignmentMananger.h" />
     <ClInclude Include="SucExtractor.h" />

@@ -221,28 +221,28 @@ MucExtractor::Statistics& MucExtractor::getStatistics() {
 
 std::ostream & operator<<(std::ostream & out, MucExtractor::RotationInfo const & info) {
 	out <<
-		"### isRotate " << info.rotate << std::endl <<
-		"### isEager " << info.eager << std::endl <<
-		"### flippinfThreshold " << info.flippingThreshold << std::endl;
+		"### muc_isRotate " << info.rotate << std::endl <<
+		"### muc_isEager " << info.eager << std::endl <<
+		"### muc_flippinfThreshold " << info.flippingThreshold << std::endl;
 	return out;
 }
 
 std::ostream & operator<<(std::ostream & out, MucExtractor::Statistics const & s) {
 	out <<
-		"### isHighLevel " << s.hl << std::endl <<
+		"### muc_isHighLevel " << s.hl << std::endl <<
 		s.info <<
-		"### problemSize " << s.problemSize << std::endl <<
-		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
-		"### minimalCoreSize " << s.minimalCoreSize << std::endl <<
-		"### numIterations " << s.numIterations << std::endl <<
-		"### numRotationCalls " << s.numRotationCalls << std::endl <<
-		"### numClausesMarkedByRotation " << s.numClausesMarkedByRotations << std::endl <<
-		"### numTheoryConflictResolves " << s.numTheoryConflictResolves << std::endl <<
-		"### numTheoryChecks " << s.numTheoryChecks << std::endl <<
-		"### totalTheoryCheckTime " << s.totalTheoryChecksTime / (double)(CLOCKS_PER_SEC) << std::endl <<
-		"### z3InitialCheckTime " << s.z3AssumtionsInitialSolveTime / (double)(CLOCKS_PER_SEC) << std::endl <<
-		"### numWatcherHit " << s.numWatcherHit << std::endl <<
-		"### numWatcherMiss " << s.numWatcherMiss << std::endl;
+		"### muc_problemSize " << s.problemSize << std::endl <<
+		"### muc_initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
+		"### muc_minimalCoreSize " << s.minimalCoreSize << std::endl <<
+		"### muc_numIterations " << s.numIterations << std::endl <<
+		"### muc_numRotationCalls " << s.numRotationCalls << std::endl <<
+		"### muc_numClausesMarkedByRotation " << s.numClausesMarkedByRotations << std::endl <<
+		"### muc_numTheoryConflictResolves " << s.numTheoryConflictResolves << std::endl <<
+		"### muc_numTheoryChecks " << s.numTheoryChecks << std::endl <<
+		"### muc_totalTheoryCheckTime " << s.totalTheoryChecksTime / (double)(CLOCKS_PER_SEC) << std::endl <<
+		"### muc_z3InitialCheckTime " << s.z3AssumtionsInitialSolveTime / (double)(CLOCKS_PER_SEC) << std::endl <<
+		"### muc_numWatcherHit " << s.numWatcherHit << std::endl <<
+		"### muc_numWatcherMiss " << s.numWatcherMiss << std::endl;
 
 	return out;
 }

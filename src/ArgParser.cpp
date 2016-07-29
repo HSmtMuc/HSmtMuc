@@ -5,7 +5,7 @@
 
 
 ArgParser::ArgParser() : smt2(false), hl(false), rotate(true), eager(false), flippingThreshold(-1), timeOut(-1), 
-	assignmentBuildingMethod(0), rotatet(UINT_MAX), boundRotation(false), logFileName(""), fileName(""), extractMUC(true){
+	assignmentBuildingMethod(0), rotatet(UINT_MAX), boundRotation(false), logFileName(""), fileName(""), exType(MUC){
 }
 
 
@@ -13,6 +13,10 @@ ArgParser::~ArgParser()
 {
 }
 
+ExtractType ArgParser::getExtractType(){
+	return exType;
+
+}
 int ArgParser::parse(int argc, char *argv[]) {
 
 	bool FileProvided = false;
@@ -29,8 +33,20 @@ int ArgParser::parse(int argc, char *argv[]) {
 		else if (arg == "-hlmuc")
 			hl = true;
 		else if (arg == "-core-not-min") {
-			extractMUC = false;
-
+			if(exType == HYB){
+				std::cout << "error in flag " << arg << "\n\n" << std::endl;
+				printUsage();
+				return -1;
+			}
+			exType = SUC;
+		}
+		else if (arg == "-use-propos-muc") {
+			if (exType == SUC) {
+				std::cout << "error in flag " << arg << "\n\n" << std::endl;
+				printUsage();
+				return -1;
+			}
+			exType = HYB;
 		}
 		else if (arg == "-no-rotate")
 			rotate = false;
@@ -175,9 +191,9 @@ string ArgParser::getLogFileName() const {
 }
 
 
-bool ArgParser::isExtractMUC() {
-	return extractMUC;
-}
+//bool ArgParser::isExtractMUC() {
+//	return extractMUC;
+//}
 
 
 void ArgParser::printUsage() const {
@@ -193,7 +209,8 @@ void ArgParser::printUsage() const {
 		"		-hlmuc				Use high-level constraints instead of translating to CNF (DEFAULT NOT USED) (Only relevent when -core-no-min off)\n"
 		"		-no-rotate			Don't use Theory Rotation (Only relevent when -core-no-min is used)\n"
 		"		-eager				Use eager rotation (DEFAULT NOT USED)\n"
-		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default)"
+		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default), incompatiable with -use-propos-muc flag"
+		"		-use-propos-muc		Use propositional MUC extraction (SUC) before extracting the MUC, incompatiable with -core-not-min flag"
 		"		-fth <num>			Set flipping threshold (during rotation) to num. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
 		//"		-abm <num>			Set assignment building method (during rotation) to num. Default: " << DEFAULT_ASSIGNMENT_BUILDING <<
 		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)\n"
