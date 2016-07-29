@@ -4,8 +4,8 @@
 #include <climits>
 
 
-ArgParser::ArgParser() : smt2(false), hl(false), rotate(true), eager(false), flippingThreshold(-1), timeOut(-1), 
-	assignmentBuildingMethod(0), rotatet(UINT_MAX), boundRotation(false), logFileName(""), fileName(""), exType(MUC){
+ArgParser::ArgParser() : smt2(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1), 
+	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), boundRotation(false), logFileName(""), fileName(""), exType(MUC){
 }
 
 
@@ -209,9 +209,11 @@ void ArgParser::printUsage() const {
 		"		-hlmuc				Use high-level constraints instead of translating to CNF (DEFAULT NOT USED) (Only relevent when -core-no-min off)\n"
 		"		-no-rotate			Don't use Theory Rotation (Only relevent when -core-no-min is used)\n"
 		"		-eager				Use eager rotation (DEFAULT NOT USED)\n"
-		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default), incompatible  with -use-propos-muc flag"
-		"		-use-propos-muc		Use propositional MUC extraction (SUC) before extracting the MUC, incompatible  with -core-not-min flag"
-		"		-fth <num>			Set flipping threshold (during rotation) to num. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
+		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default), incompatible  with -use-propos-muc flag\n"
+		"		-use-propos-muc		Use propositional MUC extraction (SUC) before extracting the MUC, incompatible  with -core-not-min flag\n"
+		" 		-boundRot			Use exponential smoothing strategy when bounding rotation  (Only relevent when -core-not-min off)\n"
+		"		-rotatet <num>		Set rotation tries limit to <num>. Default: " << DEFAULT_ROTATION_TRIES << " (Only relevent when -core-not-min off)\n"
+		"		-fth <num>			Set flipping threshold (during rotation) to <num>. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
 		//"		-abm <num>			Set assignment building method (during rotation) to num. Default: " << DEFAULT_ASSIGNMENT_BUILDING <<
 		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)\n"
 		"		-log <logFileName>	Direct log printing to file. Default: standard output." << std::endl;
