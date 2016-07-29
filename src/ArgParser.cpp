@@ -209,8 +209,8 @@ void ArgParser::printUsage() const {
 		"		-hlmuc				Use high-level constraints instead of translating to CNF (DEFAULT NOT USED) (Only relevent when -core-no-min off)\n"
 		"		-no-rotate			Don't use Theory Rotation (Only relevent when -core-no-min is used)\n"
 		"		-eager				Use eager rotation (DEFAULT NOT USED)\n"
-		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default), incompatiable with -use-propos-muc flag"
-		"		-use-propos-muc		Use propositional MUC extraction (SUC) before extracting the MUC, incompatiable with -core-not-min flag"
+		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default), incompatible  with -use-propos-muc flag"
+		"		-use-propos-muc		Use propositional MUC extraction (SUC) before extracting the MUC, incompatible  with -core-not-min flag"
 		"		-fth <num>			Set flipping threshold (during rotation) to num. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
 		//"		-abm <num>			Set assignment building method (during rotation) to num. Default: " << DEFAULT_ASSIGNMENT_BUILDING <<
 		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)\n"
