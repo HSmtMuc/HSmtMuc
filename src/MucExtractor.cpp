@@ -22,9 +22,6 @@ using std::set_intersection;
 MucExtractor::MucExtractor(expr _formula, bool _isHL, RotationInfo _rotationInfo)
 	: formula(_formula), isHL(_isHL), rotationInfo(_rotationInfo), statistics(_isHL, _rotationInfo),
 		cm(_formula, _isHL), am(NULL) {
-
-	//LOG(rotationInfo.rotate);
-
 	if (rotationInfo.flippingThreshold < 0)
 		rotationInfo.flippingThreshold = DEFAULT_FLIPPING_THRESHOLD;
 }

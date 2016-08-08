@@ -4,7 +4,7 @@
 #include <climits>
 
 
-ArgParser::ArgParser() : smt2(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1), 
+ArgParser::ArgParser() : smt2(false), isInsertInit(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1),
 	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), boundRotation(false), logFileName(""), fileName(""), exType(MUC){
 }
 
@@ -26,10 +26,13 @@ int ArgParser::parse(int argc, char *argv[]) {
 			printUsage();
 			return -1;
 		}
+
 		else if (arg == "-smt2")
 			smt2 = true;
 		else if (arg == "-smt")
 			smt2 = false;
+		else if (arg == "-use-insert-init")
+			isInsertInit = true;
 		else if (arg == "-hlmuc")
 			hl = true;
 		else if (arg == "-core-not-min") {
@@ -208,6 +211,7 @@ void ArgParser::printUsage() const {
 		"		-smt				Use parser for SMT-LIB input format\n"
 		"		-hlmuc				Use high-level constraints instead of translating to CNF (DEFAULT NOT USED) (Only relevent when -core-no-min off)\n"
 		"		-no-rotate			Don't use Theory Rotation (Only relevent when -core-no-min is used)\n"
+		"		-use-insert-init	Do an intial insertion-based iteration to try and shrink starting core (Not yet implemented)"
 		"		-eager				Use eager rotation (DEFAULT NOT USED)\n"
 		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default), incompatible  with -use-propos-muc flag\n"
 		"		-use-propos-muc		Use propositional MUC extraction (SUC) before extracting the MUC, incompatible  with -core-not-min flag\n"
@@ -218,7 +222,9 @@ void ArgParser::printUsage() const {
 		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)\n"
 		"		-log <logFileName>	Direct log printing to file. Default: standard output." << std::endl;
 }
-
+bool ArgParser::IsInsertInit() {
+	return isInsertInit;
+}
 void ArgParser::missingFile() const {
 	std::cout <<
 		"ERROR: Missing input file argument\n\n" << std::endl;

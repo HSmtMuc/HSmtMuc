@@ -18,6 +18,8 @@ public:
 	~ArgParser();
 	int parse(int argc, char *argv[]);
 	bool IsSmt2() const;
+
+	bool IsInsertInit();
 	bool IsHighLevel() const;
 	bool Rotate() const;
 	bool Eager() const;
@@ -35,6 +37,7 @@ private:
 	void missingFile() const;
 
 	bool smt2;
+	bool isInsertInit;
 	bool hl;
 	bool rotate, eager;
 	int flippingThreshold;

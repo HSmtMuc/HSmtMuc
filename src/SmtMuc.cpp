@@ -25,7 +25,11 @@ int main(int argc, char *argv[]) {
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
 
 		vector<expr> res;
-
+		if (parser.IsInsertInit()) {
+			ast = insertionIteration(ast);
+			std::cout << "insert" << std::endl;
+			return 0;
+		}
 		switch (parser.getExtractType()) {
 			case MUC: {
 
@@ -53,7 +57,7 @@ int main(int argc, char *argv[]) {
 				SucExtractor ex(ast, parser.IsHighLevel(), parser.getInputFile());
 				res = ex.extract();
 				std::cout << "### isMUCExtraction " << (parser.getExtractType() == MUC) << std::endl
-					<< ex.getStatistics() << std::endl;
+					<< ex.getStatistics();
 				bool isUnsat = Utils::checkCoreUnsat(res);
 				std::cout << "### isUnsat " << isUnsat << std::endl;
 				bool isMinimal = Utils::checkCoreMinimal(res);
@@ -62,7 +66,10 @@ int main(int argc, char *argv[]) {
 			}
 			case HYB: {
 				SucExtractor suc_ex(ast, parser.IsHighLevel(), parser.getInputFile());
+				std::cout << "======start suc extract=======" << std::endl;
 				res = suc_ex.extract();
+				std::cout << suc_ex.getStatistics() << std::endl;
+				std::cout << "======end suc extract=======" << std::endl;
 				clock_t sucExtractionTime = std::clock() - coreExtractTime;
 				ast = Utils::convert_to_cnf_simplified(Utils::m_and(res));
 				MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());

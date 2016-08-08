@@ -32,7 +32,7 @@ SucExtractor::SucExtractor(expr _formula, bool isHL, string filename) : formula(
 }
 
 vector<expr> SucExtractor::extract() {
-	//statistics.totalTime = std::clock();
+	statistics.totalTime = std::clock();
 
 	solver s(Utils::get_ctx());
 	cm.initClauses(s);
@@ -66,7 +66,7 @@ vector<expr> SucExtractor::extract() {
 		statistics.numCnfLemmasExtracted = 0;
 		statistics.numLemmasExtracted = 0;
 		statistics.propositionalExtractionTime = 0;
-		//statistics.totalTime = std::clock() - statistics.totalTime;
+		statistics.totalTime = std::clock() - statistics.totalTime;
 		return res;
 	}
 	expr_vector core = s.unsat_core();
@@ -103,7 +103,7 @@ vector<expr> SucExtractor::extract() {
 	createCNFFile(clauses);
 	vector<expr> res = runSatMUC(originalClauses, statistics);
 
-	//statistics.totalTime = std::clock() - statistics.totalTime;
+	statistics.totalTime = std::clock() - statistics.totalTime;
 	
 	statistics.smallCoreSize = res.size();
 	return res;
@@ -181,8 +181,10 @@ void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 }
 vector<expr> SucExtractor::runSatMUC(const vector<expr>& originalClauses, Statistics& stat) {
 	stat.propositionalExtractionTime = std::clock();
+	std::cout << "start porpos muc" << std::endl;
 	std::system(string(hmuc+" -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
 	stat.propositionalExtractionTime = std::clock() - stat.propositionalExtractionTime;
+	std::cout << "end porpos muc" << std::endl;
 	return parseHmucRes(originalClauses);
 }
 
@@ -341,7 +343,7 @@ std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s
 		"### suc_initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
 		"### suc_smallCoreSize " << s.smallCoreSize << std::endl <<
 		"### suc_z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime / (double)(CLOCKS_PER_SEC) << std::endl <<
-		//"### suc_totalTime " << s.totalTime / (double)(CLOCKS_PER_SEC) << std::endl <<
+		"### suc_totalTime " << s.totalTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 		"### suc_numLemmasExtracted " << s.numLemmasExtracted << std::endl <<
 		"### suc_propositionalExtractionTime " << s.propositionalExtractionTime / (double)(CLOCKS_PER_SEC) << std::endl;
 		
