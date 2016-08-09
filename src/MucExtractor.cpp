@@ -223,7 +223,9 @@ std::ostream & operator<<(std::ostream & out, MucExtractor::RotationInfo const &
 	out <<
 		"### muc_isRotate " << info.rotate << std::endl <<
 		"### muc_isEager " << info.eager << std::endl <<
-		"### muc_flippinfThreshold " << info.flippingThreshold << std::endl;
+		"### muc_flippinfThreshold " << info.flippingThreshold << std::endl <<
+		"### muc_isExpSmoothing " << info.boundRotation << std::endl <<
+		"### muc_rotationTries " << info.tries << std::endl;
 	return out;
 }
 

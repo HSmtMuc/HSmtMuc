@@ -181,7 +181,9 @@ void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 }
 vector<expr> SucExtractor::runSatMUC(const vector<expr>& originalClauses, Statistics& stat) {
 	stat.propositionalExtractionTime = std::clock();
-	std::system(string(hmuc+" -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
+	//std::cout << string(hmuc + " -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str() << std::endl;
+	int hmucRes = std::system(string(hmuc + " -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
+	stat.proposMucRetVal = hmucRes;
 	stat.propositionalExtractionTime = std::clock() - stat.propositionalExtractionTime;
 	return parseHmucRes(originalClauses);
 }
