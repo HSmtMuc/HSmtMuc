@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
 		vector<expr> res;
 		if (parser.IsInsertInit()) {
-			ast = insertionIteration(ast);
+			//ast = insertionIteration(ast);
 			std::cout << "insert" << std::endl;
 			return 0;
 		}
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 				if (stats.z3AssumtionsInitialSolveTime > 0)
 					normalized = ((coreExtractTime - stats.z3AssumtionsInitialSolveTime) / stats.z3AssumtionsInitialSolveTime);
 
-				std::cout << "### extractType " << parser.getExtractType() << std::endl << std::endl <<
+				std::cout << "### extractType " << parser.getExtractType() << std::endl <<
 					stats <<
 					"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 					"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
@@ -66,11 +66,16 @@ int main(int argc, char *argv[]) {
 				"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 				"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
 				"### totalTimeNormalized " << normalized << std::endl;
-
+				time_t sucUnsatCheckTime = std::clock();
 				bool isUnsat = Utils::checkCoreUnsat(res);
-				std::cout << "### isUnsat " << isUnsat << std::endl;
+				sucUnsatCheckTime = std::clock() - sucUnsatCheckTime;
+				std::cout << "### suc_isUnsat " << isUnsat << std::endl;
+				std::cout << "### suc_isUnsatTime " << sucUnsatCheckTime / (double)(CLOCKS_PER_SEC) << std::endl;
+				time_t sucMinCheckTime = std::clock();
 				bool isMinimal = Utils::checkCoreMinimal(res);
-				std::cout << "### isMinimal " << isMinimal << std::endl;
+				sucMinCheckTime = std::clock()- sucMinCheckTime;
+				std::cout << "### suc_isMinimal " << isMinimal << std::endl;
+				std::cout << "### suc_isMinimalTime " << sucMinCheckTime / (double)(CLOCKS_PER_SEC) << std::endl;
 				break;
 			}
 			case HYB: {
