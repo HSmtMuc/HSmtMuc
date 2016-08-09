@@ -326,11 +326,11 @@ std::ostream & operator<<(std::ostream & out, SucExtractor::SucException const &
 
 std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s) {
 	out <<
+		"### suc_proposMucRetVal " << s.proposMucRetVal<< std::endl <<
 		"### suc_problemSize " << s.problemSize << std::endl <<
 		"### suc_initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
 		"### suc_smallCoreSize " << s.smallCoreSize << std::endl <<
 		"### suc_z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime / (double)(CLOCKS_PER_SEC) << std::endl <<
-		//"### suc_totalTime " << s.totalTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 		"### suc_numLemmasExtracted " << s.numLemmasExtracted << std::endl <<
 		"### suc_propositionalExtractionTime " << s.propositionalExtractionTime / (double)(CLOCKS_PER_SEC) << std::endl;
 		
