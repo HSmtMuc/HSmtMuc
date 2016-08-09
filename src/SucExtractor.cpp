@@ -11,22 +11,9 @@ using std::ifstream;
 string hmuc = "hmuc.exe";
 string cnfFile;
 string hmucResFile;
-//#include <windows.h>
-//#include <string>
-//
-//string ExePath() {
-//	char buffer[MAX_PATH];
-//	GetModuleFileName(NULL, buffer, MAX_PATH);
-//	string::size_type pos = string(buffer).find_last_of("\\/");
-//	return string(buffer).substr(0, pos);
-//}
 
-
-
-
-
-SucExtractor::SucExtractor(expr _formula, bool isHL, string filename) : formula(_formula), cm(formula, isHL), statistics(isHL) {
-	cnfFile = filename + ".cnf";
+SucExtractor::SucExtractor(expr _formula, bool _isHL, string _filename) : formula(_formula), cm(formula, _isHL, false), statistics(_isHL) {
+	cnfFile = _filename + ".cnf";
 	hmucResFile = cnfFile + ".core";
 
 }

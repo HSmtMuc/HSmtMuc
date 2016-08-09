@@ -21,7 +21,7 @@ using std::set_intersection;
 
 MucExtractor::MucExtractor(expr _formula, bool _isHL, RotationInfo _rotationInfo)
 	: formula(_formula), isHL(_isHL), rotationInfo(_rotationInfo), statistics(_isHL, _rotationInfo),
-		cm(_formula, _isHL), am(NULL) {
+		cm(_formula, _isHL, false), am(NULL) {
 	if (rotationInfo.flippingThreshold < 0)
 		rotationInfo.flippingThreshold = DEFAULT_FLIPPING_THRESHOLD;
 }
@@ -36,9 +36,7 @@ vector<expr> MucExtractor::extract() {
 	cm.initClauses(s);
 	statistics.problemSize = cm.getNumConstraints();
 
-	//moved check up for hl experiments
 	if (statistics.problemSize <= 1) {
-		std::cout << "Trivial UC" << std::endl;
 		vector<expr> res;
 		res.push_back(formula);
 		statistics.problemSize = 1;

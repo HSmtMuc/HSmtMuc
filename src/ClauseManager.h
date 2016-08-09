@@ -11,7 +11,9 @@ typedef int clid; // clause id
 
 class ConstraintManager {
 	int problemSize;
+	int currProblemSize;
 	bool isHLC;
+	bool isInsertUsed;
 	vector<expr> id2AssumptionP;
 	vector<expr> currentAssumptions;
 	unordered_map<expr, cid, ExprHash, ExprEquals> p2Id;
@@ -31,10 +33,11 @@ class ConstraintManager {
 
 public:
 	expr nopAssumption;
-	ConstraintManager(expr& formula, bool _isHLC);
+	ConstraintManager(expr& formula, bool _isHLC, bool isInsertUsed);
 	~ConstraintManager();
 	void initClauses(solver& s);
 	int getNumConstraints();
+	int getNumCurrConstraints();
 	cid getConstraintId(expr assumption);
 	expr& getConstraintAssumption(cid id);
 	expr& getConstraint(cid id);

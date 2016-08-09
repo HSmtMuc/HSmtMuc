@@ -2,8 +2,8 @@
 #include <fstream>
 using std::stringstream;
 using std::to_string;
-ConstraintManager::ConstraintManager(expr& _formula, bool _isHLC) : 
-	formula(_formula), isHLC(_isHLC), nopAssumption(Utils::get_ctx().bool_const("nopmuc")) {
+ConstraintManager::ConstraintManager(expr& _formula, bool _isHLC, bool _isInsertUsed) :
+	formula(_formula), isHLC(_isHLC), isInsertUsed(_isInsertUsed),nopAssumption(Utils::get_ctx().bool_const("nopmuc")){
 }
 
 
@@ -28,7 +28,9 @@ void ConstraintManager::initClauses(solver& s) {
 	id2Constraint.reserve(problemSize);
 	id2CnfConstraint.reserve(problemSize);
 
-	for (cid i = 0; i < problemSize; i++) {
+	currProblemSize = (isInsertUsed) ? 1 : problemSize;
+
+	for (cid i = 0; i < currProblemSize; i++) {
 		addConstraint(formula.arg(i), s);
 	}
 
@@ -76,6 +78,9 @@ cid ConstraintManager::getConstraintId(expr assumption) {
 }
 int ConstraintManager::getNumConstraints(){
 	return problemSize;
+}
+int ConstraintManager::getNumCurrConstraints() {
+	return currProblemSize;
 }
 
 void ConstraintManager::updateAssumptions(unordered_set<cid>& unmarked, unordered_set<cid>& marked) {
