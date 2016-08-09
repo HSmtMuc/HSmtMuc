@@ -29,6 +29,7 @@ public:
 	};
 
 	struct Statistics {
+		int proposMucRetVal;
 		bool hl;
 		unsigned problemSize;
 		unsigned z3InitialCoreSize;
@@ -42,7 +43,7 @@ public:
 		unsigned propositionalExtractionTime;
 
 		Statistics(bool _hl)
-			: hl(_hl), problemSize(0), z3InitialCoreSize(0), smallCoreSize(0), 
+			:proposMucRetVal(0), hl(_hl), problemSize(0), z3InitialCoreSize(0), smallCoreSize(0), 
 				isUnsat(-1), isMinimal(false), z3AssumtionsInitialSolveTime(0), totalTime(0), numLemmasExtracted(0), numCnfLemmasExtracted(0), propositionalExtractionTime(0){}
 
 		friend std::ostream & operator<<(std::ostream & out, Statistics const & s);

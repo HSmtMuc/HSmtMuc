@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 				if (stats.z3AssumtionsInitialSolveTime > 0)
 					normalized = ((coreExtractTime - stats.z3AssumtionsInitialSolveTime) / stats.z3AssumtionsInitialSolveTime);
 
-				std::cout << "### isMUCExtraction " << (parser.getExtractType() == MUC) << std::endl <<
+				std::cout << "### extractType " << parser.getExtractType() << std::endl << std::endl <<
 					stats <<
 					"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 					"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
@@ -56,8 +56,17 @@ int main(int argc, char *argv[]) {
 			case SUC: { //SUCExtraction
 				SucExtractor ex(ast, parser.IsHighLevel(), parser.getInputFile());
 				res = ex.extract();
-				std::cout << "### isMUCExtraction " << (parser.getExtractType() == MUC) << std::endl
-					<< ex.getStatistics();
+				coreExtractTime = std::clock() - coreExtractTime;
+				SucExtractor::Statistics stats = ex.getStatistics();
+				time_t normalized = 0;
+				if (stats.z3AssumtionsInitialSolveTime > 0)
+					normalized = ((coreExtractTime - stats.z3AssumtionsInitialSolveTime) / stats.z3AssumtionsInitialSolveTime);
+				std::cout << "### extractType " << parser.getExtractType()  << std::endl
+					<< stats <<
+				"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
+				"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
+				"### totalTimeNormalized " << normalized << std::endl;
+
 				bool isUnsat = Utils::checkCoreUnsat(res);
 				std::cout << "### isUnsat " << isUnsat << std::endl;
 				bool isMinimal = Utils::checkCoreMinimal(res);
@@ -66,10 +75,7 @@ int main(int argc, char *argv[]) {
 			}
 			case HYB: {
 				SucExtractor suc_ex(ast, parser.IsHighLevel(), parser.getInputFile());
-				std::cout << "======start suc extract=======" << std::endl;
 				res = suc_ex.extract();
-				std::cout << suc_ex.getStatistics() << std::endl;
-				std::cout << "======end suc extract=======" << std::endl;
 				clock_t sucExtractionTime = std::clock() - coreExtractTime;
 				ast = Utils::convert_to_cnf_simplified(Utils::m_and(res));
 				MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
@@ -88,7 +94,8 @@ int main(int argc, char *argv[]) {
 				std::cout << "### extractType " << parser.getExtractType() << std::endl <<
 					suc_stats <<
 					"### suc_ExtractTime " << sucExtractionTime / (double)(CLOCKS_PER_SEC) << std::endl <<
-					muc_stats <<
+					muc_stats << 
+					"### muc_ExtractTime " << mucExtractionTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 					"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 					"### totalTimeNoInitialCheck " << (coreExtractTime - suc_stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
 					"### totalTimeNormalized " << normalized << std::endl;
