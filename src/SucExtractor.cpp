@@ -181,7 +181,9 @@ void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 }
 vector<expr> SucExtractor::runSatMUC(const vector<expr>& originalClauses, Statistics& stat) {
 	stat.propositionalExtractionTime = std::clock();
-	std::system(string(hmuc+" -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
+	//std::cout << string(hmuc + " -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str() << std::endl;
+	int hmucRes = std::system(string(hmuc + " -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
+	stat.proposMucRetVal = hmucRes;
 	stat.propositionalExtractionTime = std::clock() - stat.propositionalExtractionTime;
 	return parseHmucRes(originalClauses);
 }
@@ -337,13 +339,13 @@ std::ostream & operator<<(std::ostream & out, SucExtractor::SucException const &
 
 std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s) {
 	out <<
+		"### proposMucRetVal " << s.proposMucRetVal << std::endl <<
 		"### problemSize " << s.problemSize << std::endl <<
 		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
 		"### smallCoreSize " << s.smallCoreSize << std::endl <<
 		"### z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime << std::endl <<
 		"### totalTime " << s.totalTime << std::endl <<
 		"### numLemmasExtracted " << s.numLemmasExtracted << std::endl <<
-		"### propositionalExtractionTime " << s.propositionalExtractionTime;
-		
+		"### propositionalExtractionTime " << s.propositionalExtractionTime;	
 	return out;
 }
