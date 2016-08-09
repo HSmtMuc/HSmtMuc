@@ -132,7 +132,6 @@
     <ClCompile Include="AssignmentMananger.cpp" />
     <ClCompile Include="ClauseManager.cpp" />
     <ClCompile Include="FullAssignmentMananger.cpp" />
-    <ClCompile Include="HybridExtractor.cpp" />
     <ClCompile Include="MucExtractor.cpp" />
     <ClCompile Include="PartialAssignmentMananger.cpp" />
     <ClCompile Include="SmtMuc.cpp" />
@@ -145,7 +144,6 @@
     <ClInclude Include="AssignmentMananger.h" />
     <ClInclude Include="ClauseManager.h" />
     <ClInclude Include="FullAssignmentMananger.h" />
-    <ClInclude Include="HybridExtractor.h" />
     <ClInclude Include="MucExtractor.h" />
     <ClInclude Include="PartialAssignmentMananger.h" />
     <ClInclude Include="SucExtractor.h" />
