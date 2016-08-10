@@ -22,9 +22,10 @@ vector<expr> SucExtractor::extract() {
 	statistics.totalTime = std::clock();
 
 	solver s(Utils::get_ctx());
-	cm.initClauses(s);
 	statistics.problemSize = cm.getNumConstraints();
-
+	for (cid i = 0; i < statistics.problemSize; ++i) {
+		cm.addConstraintToSolver(i, s);
+	}
 	statistics.z3AssumtionsInitialSolveTime = std::clock();
 	check_result isSat;
 	try {

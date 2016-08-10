@@ -10,7 +10,6 @@ InsertSucExtractor::~InsertSucExtractor()
 }
 vector<expr> InsertSucExtractor::extract() {
 	solver s(Utils::get_ctx());
-	cm.initClauses(s);
 	statistics.problemSize = cm.getNumConstraints();
 
 	if (statistics.problemSize <= 1) {

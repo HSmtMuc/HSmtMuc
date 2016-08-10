@@ -29,13 +29,14 @@ class ConstraintManager {
 	expr formula;
 
 
-	void addConstraint(expr c, solver& s);
+	void addConstraint(expr c);
+	void initClauses();
 
 public:
 	expr nopAssumption;
 	ConstraintManager(expr& formula, bool _isHLC, bool isInsertUsed);
 	~ConstraintManager();
-	void initClauses(solver& s);
+	void addConstraintToSolver(cid i, solver& s);
 	int getNumConstraints();
 	int getNumCurrConstraints();
 	cid getConstraintId(expr assumption);

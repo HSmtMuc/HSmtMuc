@@ -4,20 +4,19 @@ using std::stringstream;
 using std::to_string;
 ConstraintManager::ConstraintManager(expr& _formula, bool _isHLC, bool _isInsertUsed) :
 	formula(_formula), isHLC(_isHLC), isInsertUsed(_isInsertUsed),nopAssumption(Utils::get_ctx().bool_const("nopmuc")){
+	initClauses();
 }
-
-
 
 ConstraintManager::~ConstraintManager()
 {
 }
-void ConstraintManager::initClauses(solver& s) {
+void ConstraintManager::initClauses() {
 	if (!isHLC)
 		formula = Utils::convert_to_cnf_simplified(formula);
 
 	if (formula.decl().decl_kind() != Z3_OP_AND) {
 		problemSize = 1;
-		addConstraint(formula, s);
+		addConstraint(formula);
 		return;
 	}
 	problemSize = formula.num_args();
@@ -30,13 +29,20 @@ void ConstraintManager::initClauses(solver& s) {
 
 	currProblemSize = (isInsertUsed) ? 1 : problemSize;
 
-	for (cid i = 0; i < currProblemSize; i++) {
-		addConstraint(formula.arg(i), s);
+	for (cid i = 0; i < problemSize; i++) {
+		addConstraint(formula.arg(i));
 	}
 
 }
 
-void ConstraintManager::addConstraint(expr constraint, solver& s) {
+void ConstraintManager::addConstraintToSolver(cid i, solver& s) {
+	expr pi = id2AssumptionP[i];
+	s.add(!pi || formula.arg(i));
+	//s.add(pi || !constraint);
+	currentAssumptions.push_back(pi);
+}
+
+void ConstraintManager::addConstraint(expr constraint) {
 	cid idx = id2Constraint.size();
 	expr pi = Utils::get_ctx().bool_const(string("pmuc"+to_string(idx)).c_str());
 	id2Constraint.push_back(constraint);
@@ -57,13 +63,11 @@ void ConstraintManager::addConstraint(expr constraint, solver& s) {
 		clid2Cid.push_back(idx);
 	}
 	cid2clauses.push_back(clauses);
-
-	s.add(!pi || constraint);
-	//s.add(pi || !constraint);
 	id2CnfConstraint.push_back(constraint);
 	id2AssumptionP.push_back(pi);
-	currentAssumptions.push_back(pi);
 	p2Id[pi] = idx;
+
+
 }
 
 vector<expr>& ConstraintManager::getCurrAssumptions() {

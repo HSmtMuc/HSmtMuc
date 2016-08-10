@@ -33,9 +33,10 @@ MucExtractor::~MucExtractor() {
 
 vector<expr> MucExtractor::extract() {
 	solver s(Utils::get_ctx());
-	cm.initClauses(s);
 	statistics.problemSize = cm.getNumConstraints();
-
+	for (cid i = 0; i < statistics.problemSize; ++i) {
+		cm.addConstraintToSolver(i, s);
+	}
 	if (statistics.problemSize <= 1) {
 		vector<expr> res;
 		res.push_back(formula);
@@ -44,9 +45,8 @@ vector<expr> MucExtractor::extract() {
 		statistics.z3InitialCoreSize = 1;
 		return res;
 	}
-	//LOG(statistics.problemSize);
-	statistics.z3AssumtionsInitialSolveTime = std::clock();
 
+	statistics.z3AssumtionsInitialSolveTime = std::clock();
 	check_result isSat;
 	try {
 		vector<expr> assumptions = cm.getCurrAssumptions();
