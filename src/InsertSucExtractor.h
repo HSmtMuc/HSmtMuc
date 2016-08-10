@@ -7,6 +7,13 @@ class InsertSucExtractor
 {
 
 public:
+	class InsertionException {
+		string m_msg;
+	public:
+		InsertionException(const string& msg) :m_msg(msg) {}
+		string msg() const { return m_msg; }
+		friend std::ostream & operator<<(std::ostream & out, MucException const & e);
+	};
 	struct Statistics {
 		int problemSize;
 		int smallCoreSize;
@@ -16,7 +23,11 @@ public:
 		Statistics(bool _isHL) : problemSize(0), smallCoreSize(0), z3InitialCoreSize(0), isHL(_isHL){}
 		friend std::ostream & operator<<(std::ostream & out, Statistics const & s);
 	};
-	vector<expr> extract();
+	unordered_set<cid> extract(vector<cid> M);
+
+	//unordered_map<Z3_ast, vid> lit2vid;
+	//vector<expr> vid2Assumption;
+
 	Statistics& getStatistics();
 	InsertSucExtractor(expr& _formula, bool _isHL);
 	~InsertSucExtractor();

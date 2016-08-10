@@ -3,7 +3,7 @@
 using std::stringstream;
 using std::to_string;
 ConstraintManager::ConstraintManager(expr& _formula, bool _isHLC, bool _isInsertUsed) :
-	formula(_formula), isHLC(_isHLC), isInsertUsed(_isInsertUsed),nopAssumption(Utils::get_ctx().bool_const("nopmuc")){
+	formula(_formula), isHLC(_isHLC), isInsertUsed(_isInsertUsed),nopAssumption(Utils::get_ctx().bool_const("nopmuc")), currProblemSize(0){
 	initClauses();
 }
 
@@ -26,13 +26,9 @@ void ConstraintManager::initClauses() {
 	Id2CurrentIdx.resize(problemSize,-1);
 	id2Constraint.reserve(problemSize);
 	id2CnfConstraint.reserve(problemSize);
-
-	currProblemSize = (isInsertUsed) ? 1 : problemSize;
-
 	for (cid i = 0; i < problemSize; i++) {
 		addConstraint(formula.arg(i));
 	}
-
 }
 
 void ConstraintManager::addConstraintToSolver(cid i, solver& s) {
@@ -40,6 +36,7 @@ void ConstraintManager::addConstraintToSolver(cid i, solver& s) {
 	s.add(!pi || formula.arg(i));
 	//s.add(pi || !constraint);
 	currentAssumptions.push_back(pi);
+	currProblemSize++;
 }
 
 void ConstraintManager::addConstraint(expr constraint) {
