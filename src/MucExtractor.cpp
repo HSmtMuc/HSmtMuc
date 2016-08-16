@@ -356,7 +356,7 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	}
 	else if (nextDepth < rotationInfo.flippingThreshold) {
 		for (vid nextVar : core) {
-			RotationFlipVar(nextVar, moreMucClauses, flippedVars, unsatClsUid, nextDepth, false);
+			RotationFlipVar(nextVar, moreMucClauses, flippedVars, unsatClsUid, nextDepth);
 			if (cnt_no_progress > 15) break;// 15 - magic number. Note that cnt gets reset to 0 if we mark a clause. 
 		}
 	}
@@ -430,7 +430,7 @@ void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucC
 	}
 	else if (nextDepth < rotationInfo.flippingThreshold) {
 		for (vid nextVar : core) {
-			HLRotationFlipVar(nextVar, moreMucConstraints, flippedVars, unsatConstraintId, nextDepth,false);
+			HLRotationFlipVar(nextVar, moreMucConstraints, flippedVars, unsatConstraintId, nextDepth);
 			if (cnt_no_progress > 15) break;// 15 - magic number. Note that cnt gets reset to 0 if we mark a clause. 
 		}
 	}
