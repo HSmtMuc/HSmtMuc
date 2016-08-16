@@ -256,12 +256,12 @@ void MucExtractor::Rotate(cid clauseId, unordered_set<cid>& moreMucClauses) {
 	expr c = cm.getConstraint(clauseId);
 	unordered_set<vid> flippedVars = unordered_set<vid>();
 	if (c.decl().decl_kind() != Z3_OP_OR) { //c is a single lit
-		RotationFlipVar(Var2VarIdx[Var(c)], moreMucClauses, flippedVars);
+		RotationFlipVar(Var2VarIdx[Var(c)], moreMucClauses, flippedVars,false);
 		return;
 	}
 
 	for (unsigned i = 0; i < c.num_args(); ++i) {
-		RotationFlipVar(Var2VarIdx[Var(c.arg(i))], moreMucClauses, flippedVars);
+		RotationFlipVar(Var2VarIdx[Var(c.arg(i))], moreMucClauses, flippedVars,false);
 	}
 }
 
@@ -430,7 +430,7 @@ void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucC
 	}
 	else if (nextDepth < rotationInfo.flippingThreshold) {
 		for (vid nextVar : core) {
-			HLRotationFlipVar(nextVar, moreMucConstraints, flippedVars, unsatConstraintId, nextDepth);
+			HLRotationFlipVar(nextVar, moreMucConstraints, flippedVars, unsatConstraintId, nextDepth,false);
 			if (cnt_no_progress > 15) break;// 15 - magic number. Note that cnt gets reset to 0 if we mark a clause. 
 		}
 	}
