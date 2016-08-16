@@ -36,10 +36,13 @@ int main(int argc, char *argv[]) {
 			vector<expr> initialCore;
 			expr formula = (parser.IsHighLevel() ? ast : Utils::convert_to_cnf_simplified(ast));
 			originalProblemSize = formula.num_args();
-			if (0 == Utils::extractInitialCore(formula, parser, initialCore)) {
+			int coreRes = Utils::extractInitialCore(formula, parser, initialCore);
+			if (0 == coreRes) {
 				ast = Utils::convert_to_cnf_simplified(Utils::m_and(initialCore));
 				initialCoreSize = ast.num_args();
 			}
+			else
+				initialCoreSize = -1;
 			std::cout <<
 				"### initialCoreUsed " << 1 << std::endl <<
 				"### originalProblemSize " << originalProblemSize << std::endl <<

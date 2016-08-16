@@ -249,7 +249,6 @@ expr Utils::create_problem(const string& file_name, bool isSmt2, const unordered
 }
 
 //extracts a vector<expr> that represents a core input extracted with Utils::read_core_file method
-//returns the number of original clauses in the formula (while considering whether it's HL or not), or -1 in case of error
 int Utils::extractInitialCore(expr& ast, ArgParser parser, vector<expr>& resultingCore) {
 	vector<string> initialCore;
 	int coreRes = Utils::read_core_file(parser.getInputFile(), initialCore);
@@ -264,12 +263,12 @@ int Utils::extractInitialCore(expr& ast, ArgParser parser, vector<expr>& resulti
 			index = atoi((initialCore[i].substr(1, initialCore[i].size() - 1)).c_str());
 		}
 		catch (...) {
-			std::cout << __func__ << ": ERROR in parsing clause named " << initialCore[i] << "at line " << i << " in core file,  clause not named in the form 'C<num>' (for a given number num)" << std::endl;
+			std::cerr << __func__ << ": ERROR in parsing clause named " << initialCore[i] << "at line " << i << " in core file,  clause not named in the form 'C<num>' (for a given number num)" << std::endl;
 			resultingCore.clear();
 			return 1;
 		}
 		if (0 > index || ast.num_args() <= index) {
-			std::cout << __func__ << ": ERROR index " << index << ", at line " << i << " in core file is out of bounds of formula." << std::endl;
+			std::cerr << __func__ << ": ERROR index " << index << ", at line " << i << " in core file is out of bounds of formula." << std::endl;
 			resultingCore.clear();
 			return 1;
 		}
