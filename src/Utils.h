@@ -4,6 +4,7 @@
 #include <vector>
 #include "z3++.h"
 #include <unordered_set>
+#include "ArgParser.h"
 using std::string;
 using std::map;
 using std::vector;
@@ -13,6 +14,7 @@ using namespace z3;
 #define DEFAULT_FLIPPING_THRESHOLD 1
 #define DEFAULT_ROTATION_TRIES 5
 #define DEFAULT_ASSIGNMENT_BUILDING 0
+#define DEFUALT_CORE_SUFFIX  "smt2.res"
 
 #define C_UNDEF -1
 #define V_UNDEF -1
@@ -37,7 +39,7 @@ public:
 	//static expr m_and(const array<Z3_ast>& args);
 	static bool checkCoreUnsat(vector<expr>& core);
 	static bool checkCoreMinimal(vector<expr>& core);
-
+	static int extractInitialCore(expr& formula, ArgParser parser, vector<expr>& resultingCore);
 
 
 	static string getConstraintName();
@@ -47,7 +49,7 @@ public:
 	static void create_smt2_for_msat(const string& file_name, bool isSmt2);
 
 	static bool removeChar(char c);
-	static int read_core_file(const string& file_name, unordered_set<string>& core);
+	static int read_core_file(const string& file_name, vector<string>& core);
 	static expr create_problem(const string& file_name, bool isSmt2, const unordered_set<string>& core);
 
 

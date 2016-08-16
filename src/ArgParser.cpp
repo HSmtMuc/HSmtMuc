@@ -5,7 +5,7 @@
 
 
 ArgParser::ArgParser() : smt2(false), isInsertInit(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1),
-	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), boundRotation(false), logFileName(""), fileName(""), exType(MUC){
+	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), boundRotation(false), logFileName(""), fileName(""), exType(MUC), useExistingCore(false){
 }
 
 
@@ -13,9 +13,13 @@ ArgParser::~ArgParser()
 {
 }
 
-ExtractType ArgParser::getExtractType(){
+ExtractType ArgParser::getExtractType() const{
 	return exType;
 
+}
+
+bool ArgParser::isExistingCoreUsed() const {
+	return useExistingCore;
 }
 int ArgParser::parse(int argc, char *argv[]) {
 
@@ -115,6 +119,11 @@ int ArgParser::parse(int argc, char *argv[]) {
 				}
 			}
 		}
+
+		else if (arg == "-use-known-core") {
+			useExistingCore = true;
+		}
+
 		else if (arg == "-log") {
 			i++;
 			if (i < argc)
@@ -219,6 +228,7 @@ void ArgParser::printUsage() const {
 		"		-rotatet <num>		Set rotation tries limit to <num>. Default: " << DEFAULT_ROTATION_TRIES << " (Only relevent when -core-not-min off)\n"
 		"		-fth <num>			Set flipping threshold (during rotation) to <num>. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
 		//"		-abm <num>			Set assignment building method (during rotation) to num. Default: " << DEFAULT_ASSIGNMENT_BUILDING <<
+		"		-use-known-core		Use initial core as specefied in <filename>.smt2.res input core file (placed in the same location as <filename>)"
 		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)\n"
 		"		-log <logFileName>	Direct log printing to file. Default: standard output." << std::endl;
 }
@@ -229,3 +239,4 @@ void ArgParser::missingFile() const {
 	std::cout <<
 		"ERROR: Missing input file argument\n\n" << std::endl;
 }
+

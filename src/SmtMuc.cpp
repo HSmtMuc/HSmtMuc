@@ -12,7 +12,13 @@
 
 using std::vector;
 
+
+
+
+
 int main(int argc, char *argv[]) {
+	int originalProblemSize;
+	int initialCoreSize;
 	try {
 		ArgParser parser;
 		if (parser.parse(argc, argv) != 0)
@@ -24,17 +30,42 @@ int main(int argc, char *argv[]) {
 		else
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
 
+
+		//used for extracting an initial core given by <filename>.smt2.res file.
+		if (parser.isExistingCoreUsed()) {
+			vector<expr> initialCore;
+			expr formula = (parser.IsHighLevel() ? ast : Utils::convert_to_cnf_simplified(ast));
+			originalProblemSize = formula.num_args();
+			if (0 == Utils::extractInitialCore(formula, parser, initialCore)) {
+				ast = Utils::convert_to_cnf_simplified(Utils::m_and(initialCore));
+				initialCoreSize = ast.num_args();
+			}
+			std::cout <<
+				"### initialCoreUsed " << 1 << std::endl <<
+				"### originalProblemSize " << originalProblemSize << std::endl <<
+				"### initialCoreSize " << initialCoreSize << std::endl;
+		}
+		else
+			std::cout <<
+			"### initialCoreUsed " << 0 << std::endl <<
+			"### originalProblemSize " << -1 << std::endl <<
+			"### initialCoreSize " << -1 << std::endl;
+
+
+
+
+
 		vector<expr> res;
 		if (parser.IsInsertInit()) {
 			//ast = insertionIteration(ast);
-			std::cout << "insert" << std::endl;
+			//std::cout << "insert" << std::endl;
 			return 0;
 		}
 		switch (parser.getExtractType()) {
+
 			case MUC: {
 
 				MucExtractor::RotationInfo info(parser.Rotate(), parser.Eager(), parser.FlippingThreshold(), parser.AssignmentBuildingMethod(), parser.RotateTries(), parser.BoundRotation());
-
 				MucExtractor extractor(ast, parser.IsHighLevel(), info);
 				res = extractor.extract();
 				coreExtractTime = std::clock() - coreExtractTime;

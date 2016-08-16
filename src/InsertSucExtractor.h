@@ -12,7 +12,7 @@ public:
 	public:
 		InsertionException(const string& msg) :m_msg(msg) {}
 		string msg() const { return m_msg; }
-		friend std::ostream & operator<<(std::ostream & out, MucException const & e);
+		friend std::ostream & operator<<(std::ostream & out, InsertionException const & e);
 	};
 	struct Statistics {
 		int problemSize;

@@ -11,8 +11,9 @@ ConstraintManager::~ConstraintManager()
 {
 }
 void ConstraintManager::initClauses() {
-	if (!isHLC)
+	if (!isHLC) {
 		formula = Utils::convert_to_cnf_simplified(formula);
+	}
 
 	if (formula.decl().decl_kind() != Z3_OP_AND) {
 		problemSize = 1;

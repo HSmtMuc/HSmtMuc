@@ -30,8 +30,9 @@ public:
 	bool BoundRotation() const;
 	string getInputFile() const;
 	string getLogFileName() const;
-	//bool isExtractMUC();
-	ExtractType getExtractType();
+	ExtractType getExtractType() const;
+	bool isExistingCoreUsed() const;
+
 private:
 	void printUsage() const;
 	void missingFile() const;
@@ -49,5 +50,6 @@ private:
 	string logFileName;
 	//bool extractMUC;
 	ExtractType exType;
+	bool useExistingCore;
 };
 

@@ -28,7 +28,7 @@ unordered_set<cid> InsertSucExtractor::extract(vector<cid> M) {
 		vector<expr> assumptions = cm.getCurrAssumptions();
 
 		vector<expr> lit2Assupmtion;
-		unordered_set<expr> litAssumptions;
+		unordered_set<expr, ExprHash,ExprEquals> litAssumptions;
 		for (cid id = 0; id < cm.getNumConstraints(); ++id) {
 			if (res.find(id) != res.end())
 				continue;
@@ -61,6 +61,7 @@ unordered_set<cid> InsertSucExtractor::extract(vector<cid> M) {
 				// TODO: check if core contains only clauses assumptions
 			}
 			s.pop();
+
 		}
 	//TODO: handle more than one clause in returned result
 	res.clear();
