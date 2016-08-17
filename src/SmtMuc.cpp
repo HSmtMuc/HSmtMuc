@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "MucExtractor.h"
 #include "SucExtractor.h"
+#include "CoreParser.h"
 
 #include <ctime>
 
@@ -17,8 +18,8 @@ using std::vector;
 
 
 int main(int argc, char *argv[]) {
-	int originalProblemSize;
-	int initialCoreSize;
+	//int originalProblemSize = -1;
+	//int initialCoreSize = -1;
 	try {
 		ArgParser parser;
 		if (parser.parse(argc, argv) != 0)
@@ -29,32 +30,34 @@ int main(int argc, char *argv[]) {
 			ast = Utils::parse_smtlib2_file(parser.getInputFile());
 		else
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
+		ast = (parser.IsHighLevel() ? ast : Utils::convert_to_cnf_simplified(ast));
 
 
+
+		//originalProblemSize = ast.num_args();
 		//used for extracting an initial core given by <filename>.smt2.res file.
+		//if (parser.isExistingCoreUsed()) {
+		//	vector<expr> initialCore;
+		//	int coreResCode = Utils::extractInitialCore(ast, parser, initialCore);
+		//	if (0 == coreResCode) {
+		//		initialCoreSize = initialCore.size();
+		//		ast = Utils::convert_to_cnf_simplified(Utils::m_and(initialCore));
+		//	}
+		//	std::cout <<
+		//		"### initialCoreUsed " << 1 << std::endl <<
+		//		"### coreExtractResultCode " << coreResCode << std::endl<<
+		//		"### originalProblemSize " << originalProblemSize << std::endl <<
+		//		"### initialCoreSize " << initialCoreSize << std::endl;
+		//	if (0 != coreResCode)
+		//		return -1;
+		//}
 		if (parser.isExistingCoreUsed()) {
-			vector<expr> initialCore;
-			expr formula = (parser.IsHighLevel() ? ast : Utils::convert_to_cnf_simplified(ast));
-			originalProblemSize = formula.num_args();
-			int coreRes = Utils::extractInitialCore(formula, parser, initialCore);
-			if (0 == coreRes) {
-				ast = Utils::convert_to_cnf_simplified(Utils::m_and(initialCore));
-				initialCoreSize = ast.num_args();
-			}
-			else
-				initialCoreSize = -1;
-			std::cout <<
-				"### initialCoreUsed " << 1 << std::endl <<
-				"### originalProblemSize " << originalProblemSize << std::endl <<
-				"### initialCoreSize " << initialCoreSize << std::endl;
+			CoreParser coreParse(ast,parser);
+			CoreParser::Statistics stats = coreParse.getStats();
+			ast = (0 == stats.coreResCode) ? coreParse.getCore() : ast;
+			std::cout << stats;
+			if (0 != stats.coreResCode) return -1;
 		}
-		else
-			std::cout <<
-			"### initialCoreUsed " << 0 << std::endl <<
-			"### originalProblemSize " << -1 << std::endl <<
-			"### initialCoreSize " << -1 << std::endl;
-
-
 
 
 

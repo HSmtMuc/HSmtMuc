@@ -194,28 +194,7 @@ bool Utils::removeChar(char c) {
 	return isspace(c) || c == '(' || c == ')';
 }
 
-//read math-sat core file 
-int Utils::read_core_file(const string& file_name, vector<string>& core) {
-	ifstream coreFile;
-	coreFile.open(file_name + ".smt2.res", std::ios::in);
-	string line;
-	getline(coreFile, line);
-	if (line.find("unsat") == string::npos) {
-		std::cout << __func__ << ": ERROR bad file" << endl;
-		coreFile.close();
-		return 1;
-	}
-	while (getline(coreFile, line)) {
-		line.erase(remove_if(line.begin(), line.end(), removeChar), line.end());
-		core.push_back(line);
-	}
-	coreFile.close();
-	if (core.empty()) {
-		std::cout << __func__ << ": ERROR empty core" << endl;
-		return 1;
-	}
-	return 0;
-}
+
 
 
 // creates formula according to given core
@@ -248,31 +227,3 @@ expr Utils::create_problem(const string& file_name, bool isSmt2, const unordered
 	return Utils::m_and(constraints);
 }
 
-//extracts a vector<expr> that represents a core input extracted with Utils::read_core_file method
-int Utils::extractInitialCore(expr& ast, ArgParser parser, vector<expr>& resultingCore) {
-	vector<string> initialCore;
-	int coreRes = Utils::read_core_file(parser.getInputFile(), initialCore);
-	if (0 != coreRes)
-		return 1;
-	vector<expr> core;
-	int i;
-
-	for (i = 0; i < initialCore.size(); ++i) {
-		int index = -1;
-		try {
-			index = atoi((initialCore[i].substr(1, initialCore[i].size() - 1)).c_str());
-		}
-		catch (...) {
-			std::cerr << __func__ << ": ERROR in parsing clause named " << initialCore[i] << "at line " << i << " in core file,  clause not named in the form 'C<num>' (for a given number num)" << std::endl;
-			resultingCore.clear();
-			return 1;
-		}
-		if (0 > index || ast.num_args() <= index) {
-			std::cerr << __func__ << ": ERROR index " << index << ", at line " << i << " in core file is out of bounds of formula." << std::endl;
-			resultingCore.clear();
-			return 1;
-		}
-		resultingCore.push_back(ast.arg(index));
-	}
-	return 0;
-}

@@ -39,7 +39,7 @@ public:
 	//static expr m_and(const array<Z3_ast>& args);
 	static bool checkCoreUnsat(vector<expr>& core);
 	static bool checkCoreMinimal(vector<expr>& core);
-	static int extractInitialCore(expr& formula, ArgParser parser, vector<expr>& resultingCore);
+	//static int extractInitialCore(expr& formula, ArgParser parser, vector<expr>& resultingCore);
 
 
 	static string getConstraintName();
@@ -49,7 +49,7 @@ public:
 	static void create_smt2_for_msat(const string& file_name, bool isSmt2);
 
 	static bool removeChar(char c);
-	static int read_core_file(const string& file_name, vector<string>& core);
+	//static int read_core_file(const string& file_name, vector<string>& core);
 	static expr create_problem(const string& file_name, bool isSmt2, const unordered_set<string>& core);
 
 

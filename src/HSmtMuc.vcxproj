@@ -131,6 +131,7 @@
     <ClCompile Include="ArgParser.cpp" />
     <ClCompile Include="AssignmentMananger.cpp" />
     <ClCompile Include="ClauseManager.cpp" />
+    <ClCompile Include="CoreParser.cpp" />
     <ClCompile Include="FullAssignmentMananger.cpp" />
     <ClCompile Include="InsertSucExtractor.cpp" />
     <ClCompile Include="MucExtractor.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="ArgParser.h" />
     <ClInclude Include="AssignmentMananger.h" />
     <ClInclude Include="ClauseManager.h" />
+    <ClInclude Include="CoreParser.h" />
     <ClInclude Include="FullAssignmentMananger.h" />
     <ClInclude Include="InsertSucExtractor.h" />
     <ClInclude Include="MucExtractor.h" />
