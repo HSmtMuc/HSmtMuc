@@ -8,6 +8,7 @@
 #include "ClauseManager.h"
 #include "FullAssignmentMananger.h"
 #include "PartialAssignmentMananger.h"
+#include "HSmtMucException.h"
 
 #define FORMULA_UPDATE_THRESHOLD 0.25
 #define USE_CORE_THRESHOLD 1
@@ -52,11 +53,11 @@ vector<expr> MucExtractor::extract() {
 		vector<expr> assumptions = cm.getCurrAssumptions();
 		isSat = s.check(assumptions.size(), &assumptions[0]);
 	} catch (const exception &e) {
-		throw MucException(string("Initial solving failed: ") + string(e.msg())); 
+		throw MucExtractorException((string("Initial solving failed: ") + string(e.msg())).c_str(), 1); 
 	}
 	statistics.z3AssumtionsInitialSolveTime = std::clock() - statistics.z3AssumtionsInitialSolveTime;
 	if (isSat != unsat) {
-		throw MucException("Problem is not unsat!");
+		throw MucExtractorException("Problem is not unsat!",2);
 	}
 	
 	expr_vector core = s.unsat_core();
@@ -102,10 +103,10 @@ vector<expr> MucExtractor::extract() {
 			else isSat = s.check(assumptions.size(), &assumptions[0]);
 		}
 		catch (const exception &e) {
-			throw MucException(string("Non-initial solving failed: ") + string(e.msg()));
+			throw MucExtractorException((string("Non-initial solving failed: ") + e.msg()).c_str(),3);
 		}
 		if (isSat != sat && isSat != unsat) {
-			throw MucException("Unresolved assertion");
+			throw MucExtractorException("Unresolved assertion",4);
 		}
 
 		if (isSat == sat) {
@@ -205,10 +206,6 @@ void MucExtractor::initUnmarked(const expr_vector& core) {
 }
 
 
-std::ostream & operator<<(std::ostream & out, MucExtractor::MucException const & e) {
-	out << e.msg();
-	return out;
-}
 
 MucExtractor::Statistics& MucExtractor::getStatistics() {
 	return statistics;

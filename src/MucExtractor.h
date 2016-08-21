@@ -26,13 +26,13 @@ using namespace z3;
 
 class MucExtractor {
 public:
-	class MucException {
-		string m_msg;
-	public:
-		MucException(const string& msg) :m_msg(msg) {}
-		string msg() const { return m_msg; }
-		friend std::ostream & operator<<(std::ostream & out, MucException const & e);
-	};
+	//class MucException {
+	//	string m_msg;
+	//public:
+	//	MucException(const string& msg) :m_msg(msg) {}
+	//	string msg() const { return m_msg; }
+	//	friend std::ostream & operator<<(std::ostream & out, MucException const & e);
+	//};
 
 	struct RotationInfo {
 		bool rotate;

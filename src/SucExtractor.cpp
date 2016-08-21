@@ -1,7 +1,7 @@
 #include "SucExtractor.h"
 #include <ctime>
 #include <iostream>
-
+#include "HSmtMucException.h"
 
 
 using std::stringstream;
@@ -35,11 +35,11 @@ vector<expr> SucExtractor::extract() {
 
 	catch (const exception &e) {
 		
-		throw SucException(string("Initial solving failed: ") + string(e.msg()));
+		throw SucExtractorException((string("Initial solving failed: ") + e.msg()).c_str(),1);
 	}
 	statistics.z3AssumtionsInitialSolveTime = std::clock() - statistics.z3AssumtionsInitialSolveTime;
 	if (isSat != unsat) {
-		throw SucException("Problem is not unsat!");
+		throw SucExtractorException("Problem is not unsat!",2);
 	}
 
 	if (cm.getNumConstraints() <= 1) {
@@ -320,10 +320,6 @@ SucExtractor::Statistics& SucExtractor::getStatistics() {
 	return statistics;
 }
 
-std::ostream & operator<<(std::ostream & out, SucExtractor::SucException const & e) {
-	out << e.msg();
-	return out;
-}
 
 std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s) {
 	out <<

@@ -137,16 +137,12 @@ int main(int argc, char *argv[]) {
 		}
 		resFile.close();
 	}
-	catch (const MucExtractor::MucException& e) {
-		std::cerr << e << std::endl;
-		return 0;
-	}
-	catch (const exception& e) {
-		std::cerr << e << std::endl;
-		return 0;
-	}
 	catch (const HSmtMucException& e) {
 		std::cerr << e.msg() << std::endl;
+		return 0;
+	}
+	catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
 		return 0;
 	}
 	catch (...) {

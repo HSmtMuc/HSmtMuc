@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 #include <climits>
-
+#include "HSmtMucException.h"
 
 ArgParser::ArgParser() : smt2(false), isInsertInit(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1),
 	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), boundRotation(false), logFileName(""), fileName(""), exType(MUC), useExistingCore(false){
