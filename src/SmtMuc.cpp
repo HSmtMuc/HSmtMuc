@@ -7,6 +7,7 @@
 #include "MucExtractor.h"
 #include "SucExtractor.h"
 #include "CoreParser.h"
+#include "HSmtMucException.h"
 
 #include <ctime>
 
@@ -18,8 +19,6 @@ using std::vector;
 
 
 int main(int argc, char *argv[]) {
-	//int originalProblemSize = -1;
-	//int initialCoreSize = -1;
 	try {
 		ArgParser parser;
 		if (parser.parse(argc, argv) != 0)
@@ -32,39 +31,17 @@ int main(int argc, char *argv[]) {
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
 		ast = (parser.IsHighLevel() ? ast : Utils::convert_to_cnf_simplified(ast));
 
-
-
-		//originalProblemSize = ast.num_args();
-		//used for extracting an initial core given by <filename>.smt2.res file.
-		//if (parser.isExistingCoreUsed()) {
-		//	vector<expr> initialCore;
-		//	int coreResCode = Utils::extractInitialCore(ast, parser, initialCore);
-		//	if (0 == coreResCode) {
-		//		initialCoreSize = initialCore.size();
-		//		ast = Utils::convert_to_cnf_simplified(Utils::m_and(initialCore));
-		//	}
-		//	std::cout <<
-		//		"### initialCoreUsed " << 1 << std::endl <<
-		//		"### coreExtractResultCode " << coreResCode << std::endl<<
-		//		"### originalProblemSize " << originalProblemSize << std::endl <<
-		//		"### initialCoreSize " << initialCoreSize << std::endl;
-		//	if (0 != coreResCode)
-		//		return -1;
-		//}
+		CoreParser::Statistics coreStats = CoreParser::Statistics();
 		if (parser.isExistingCoreUsed()) {
 			CoreParser coreParse(ast,parser);
-			CoreParser::Statistics stats = coreParse.getStats();
-			ast = (0 == stats.coreResCode) ? coreParse.getCore() : ast;
-			std::cout << stats;
-			if (0 != stats.coreResCode) return -1;
+			ast = coreParse.getCore();
+			coreStats = coreParse.getStats();
 		}
 
 
 
 		vector<expr> res;
 		if (parser.IsInsertInit()) {
-			//ast = insertionIteration(ast);
-			//std::cout << "insert" << std::endl;
 			return 0;
 		}
 		switch (parser.getExtractType()) {
@@ -82,7 +59,9 @@ int main(int argc, char *argv[]) {
 				if (stats.z3AssumtionsInitialSolveTime > 0)
 					normalized = ((coreExtractTime - stats.z3AssumtionsInitialSolveTime) / stats.z3AssumtionsInitialSolveTime);
 
-				std::cout << "### extractType " << parser.getExtractType() << std::endl <<
+				std::cout << 
+					coreStats <<
+					"### extractType " << parser.getExtractType() << std::endl <<
 					stats <<
 					"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 					"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
@@ -98,7 +77,9 @@ int main(int argc, char *argv[]) {
 				time_t normalized = 0;
 				if (stats.z3AssumtionsInitialSolveTime > 0)
 					normalized = ((coreExtractTime - stats.z3AssumtionsInitialSolveTime) / stats.z3AssumtionsInitialSolveTime);
-				std::cout << "### extractType " << parser.getExtractType()  << std::endl
+				std::cout <<
+				coreStats <<
+				"### extractType " << parser.getExtractType()  << std::endl
 					<< stats <<
 				"### totalTime " << coreExtractTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 				"### totalTimeNoInitialCheck " << (coreExtractTime - stats.z3AssumtionsInitialSolveTime) / (double)(CLOCKS_PER_SEC) << std::endl <<
@@ -133,7 +114,9 @@ int main(int argc, char *argv[]) {
 				if (suc_stats.z3AssumtionsInitialSolveTime > 0)
 					normalized = ((coreExtractTime - suc_stats.z3AssumtionsInitialSolveTime) / suc_stats.z3AssumtionsInitialSolveTime);
 
-				std::cout << "### extractType " << parser.getExtractType() << std::endl <<
+				std::cout << 
+					coreStats <<
+					"### extractType " << parser.getExtractType() << std::endl <<
 					suc_stats <<
 					"### suc_ExtractTime " << sucExtractionTime / (double)(CLOCKS_PER_SEC) << std::endl <<
 					muc_stats << 
@@ -160,6 +143,10 @@ int main(int argc, char *argv[]) {
 	}
 	catch (const exception& e) {
 		std::cerr << e << std::endl;
+		return 0;
+	}
+	catch (const HSmtMucException& e) {
+		std::cerr << e.msg() << std::endl;
 		return 0;
 	}
 	catch (...) {

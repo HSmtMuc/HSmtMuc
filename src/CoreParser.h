@@ -22,8 +22,8 @@ public:
 	~CoreParser();
 
 private:
-	int read_core_file(const string& file_name, vector<string>& core);
-	int extractInitialCore(expr& ast, ArgParser parser, vector<expr>& resultingCore);
+	void read_core_file(const string& file_name, vector<string>& core);
+	void extractInitialCore(expr& ast, ArgParser parser, vector<expr>& resultingCore);
 	expr formula;
 	expr core;
 	Statistics stats;

@@ -147,6 +147,7 @@
     <ClInclude Include="ClauseManager.h" />
     <ClInclude Include="CoreParser.h" />
     <ClInclude Include="FullAssignmentMananger.h" />
+    <ClInclude Include="HSmtMucException.h" />
     <ClInclude Include="InsertSucExtractor.h" />
     <ClInclude Include="MucExtractor.h" />
     <ClInclude Include="PartialAssignmentMananger.h" />

@@ -1,19 +1,16 @@
 #include "CoreParser.h"
+#include "HSmtMucException.h"
 #include <fstream>
 #include <algorithm>
 using std::ofstream;
 using std::ifstream;
 
-
 CoreParser::CoreParser(expr& _ast, ArgParser& _parser): formula(_ast), core(_ast){
 	vector<expr> initialCore;
 	stats.originalProblemSize = _ast.num_args();
-	int coreResCode = extractInitialCore(_ast, _parser, initialCore);
-	if (0 == coreResCode) {
-		stats.coreSize = initialCore.size();
-		core = Utils::convert_to_cnf_simplified(Utils::m_and(initialCore));
-	}
-	stats.coreResCode = coreResCode;
+	extractInitialCore(_ast, _parser, initialCore);
+	stats.coreSize = initialCore.size();
+	core = Utils::convert_to_cnf_simplified(Utils::m_and(initialCore));
 }
 expr& CoreParser::getCore() {
 	return core;
@@ -37,43 +34,37 @@ std::ostream& operator<<(std::ostream & out, CoreParser::Statistics const & s) {
 
 //	extracts a vector<expr> that represents a core input extracted with Utils::read_core_file method
 //	return 0 if successful (core in resulting clause), or a positive integer if unsuccessful (with empty resultingClause). 
-int CoreParser::extractInitialCore(expr& ast, ArgParser parser, vector<expr>& resultingCore) {
+void CoreParser::extractInitialCore(expr& ast, ArgParser parser, vector<expr>& resultingCore) {
 	vector<string> initialCore;
-	int coreRes = read_core_file(parser.getInputFile(), initialCore);
-	if (0 != coreRes)
-		return coreRes;
+	read_core_file(parser.getInputFile(), initialCore);
 	vector<expr> core;
 	int i;
-
 	for (i = 0; i < initialCore.size(); ++i) {
 		int index = -1;
 		try {
-			index = atoi((initialCore[i].substr(1, initialCore[i].size() - 1)).c_str()); // line should be of the form "C<num>" where C is a char and <num> is an integer between 0 and the number of clauses in the ast
+			index = std::stoi(initialCore[i].substr(1, initialCore[i].size() - 1)); // line should be of the form "C<num>" where C is a char and <num> is an integer between 0 and the number of clauses in the ast
 		}
-		catch (...) {
-			//std::cerr << __func__ << ": ERROR in parsing clause named " << initialCore[i] << "at line " << i << " in core file,  clause not named in the form 'C<num>' (for a given number num)" << std::endl;
+		catch (std::invalid_argument& e) {
 			resultingCore.clear();
-			return -3;
+			throw PropsitionalCoreParserException((string(__func__) + ": ERROR in parsing clause named " + initialCore[i] + "at line " + std::to_string(i) + " in core file,  clause not named in the form 'C<num>' (for a given number num)").c_str(),3);
 		}
 		if (0 > index || ast.num_args() <= index) {
-			//std::cerr << __func__ << ": ERROR index " << index << ", at line " << i << " in core file is out of bounds of formula." << std::endl;
 			resultingCore.clear();
-			return -4;
+			throw PropsitionalCoreParserException((string(__func__) + ": ERROR index "+ std::to_string(index) + ", at line " + std::to_string(i) + " in core file is out of bounds of formula.").c_str(),4);
 		}
 		resultingCore.push_back(ast.arg(index));
 	}
-	return 0;
 }
 //read math-sat core file 
-int CoreParser::read_core_file(const string& file_name, vector<string>& core) {
+void CoreParser::read_core_file(const string& file_name, vector<string>& core) {
 	ifstream coreFile;
-	coreFile.open(file_name + ".smt2.res", std::ios::in);
+	string filename = file_name + ".smt2.res";
+	coreFile.open(filename, std::ios::in);
 	string line;
 	getline(coreFile, line);
 	if (line.find("unsat") == string::npos) {
-		//std::cout << __func__ << ": ERROR bad file" << endl;
 		coreFile.close();
-		return -1;
+		throw PropsitionalCoreParserException((string(__func__) + ": ERROR no valid core in file " + filename).c_str(), 1);
 	}
 	while (getline(coreFile, line)) {
 		line.erase(remove_if(line.begin(), line.end(), Utils::removeChar), line.end());
@@ -82,7 +73,6 @@ int CoreParser::read_core_file(const string& file_name, vector<string>& core) {
 	coreFile.close();
 	if (core.empty()) {
 		//std::cout << __func__ << ": ERROR empty core" << endl;
-		return -2;
+		throw PropsitionalCoreParserException((string(__func__) + ": ERROR empty core in file " + filename).c_str(), 2);
 	}
-	return 0;
 }
