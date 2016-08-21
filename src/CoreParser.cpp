@@ -6,6 +6,7 @@ using std::ofstream;
 using std::ifstream;
 
 CoreParser::CoreParser(expr& _ast, ArgParser& _parser): formula(_ast), core(_ast){
+	stats.isInitCoreUsed = true;
 	vector<expr> initialCore;
 	stats.originalProblemSize = _ast.num_args();
 	extractInitialCore(_ast, _parser, initialCore);
@@ -24,8 +25,8 @@ CoreParser::~CoreParser()
 }
 
 std::ostream& operator<<(std::ostream & out, CoreParser::Statistics const & s) {
-	out	<<
-		"### initCore_extractResultCode " << s.coreResCode << std::endl <<
+	out <<
+		"### initCore_isUsed " << s.isInitCoreUsed << std::endl <<
 		"### initCore_originalProblemSize " << s.originalProblemSize << std::endl <<
 		"### initCore_coreSize " << s.coreSize << std::endl;
 	return out;

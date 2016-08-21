@@ -4,12 +4,12 @@ class CoreParser
 {
 public:
 	struct Statistics {
+		bool isInitCoreUsed;
 		unsigned originalProblemSize;
 		unsigned coreSize;
-		int coreResCode;
 
 
-		Statistics(): originalProblemSize(0),coreSize(0), coreResCode(1){
+		Statistics(): isInitCoreUsed(false), originalProblemSize(0),coreSize(0){
 
 		}
 
