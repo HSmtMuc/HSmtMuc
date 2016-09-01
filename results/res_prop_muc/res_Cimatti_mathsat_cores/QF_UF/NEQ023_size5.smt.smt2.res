@@ -1,19 +1,121 @@
-(error "syntax error, unexpected ')', expecting NUMERAL (line: 3)")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
+unsat
+( _c0
+  _c106
+  _c107
+  _c108
+  _c109
+  _c110
+  _c111
+  _c112
+  _c113
+  _c114
+  _c115
+  _c116
+  _c117
+  _c118
+  _c119
+  _c120
+  _c121
+  _c122
+  _c123
+  _c124
+  _c125
+  _c126
+  _c127
+  _c128
+  _c129
+  _c130
+  _c256
+  _c257
+  _c258
+  _c259
+  _c260
+  _c261
+  _c262
+  _c263
+  _c264
+  _c265
+  _c266
+  _c267
+  _c268
+  _c269
+  _c270
+  _c271
+  _c272
+  _c273
+  _c274
+  _c275
+  _c276
+  _c277
+  _c278
+  _c279
+  _c280
+  _c332
+  _c334
+  _c335
+  _c336
+  _c337
+  _c338
+  _c342
+  _c343
+  _c345
+  _c346
+  _c352
+  _c353
+  _c354
+  _c355
+  _c356
+  _c357
+  _c358
+  _c359
+  _c360
+  _c361
+  _c362
+  _c363
+  _c364
+  _c365
+  _c366
+  _c367
+  _c368
+  _c369
+  _c370
+  _c371
+  _c372
+  _c373
+  _c374
+  _c375
+  _c376
+  _c655
+  _c657
+  _c658
+  _c659
+  _c660
+  _c661
+  _c665
+  _c666
+  _c668
+  _c669
+  _c726
+  _c728
+  _c729
+  _c731
+  _c732
+  _c733
+  _c738
+  _c739
+  _c741
+  _c743
+  _c774
+  _c775
+  _c776
+  _c777
+  _c778
+  _c784
+  _c785
+  _c786
+  _c787
+  _c788
+  _c789
+  _c790
+  _c791
+  _c792 )

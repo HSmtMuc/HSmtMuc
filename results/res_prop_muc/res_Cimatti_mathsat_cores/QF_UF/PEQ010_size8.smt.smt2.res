@@ -1,18 +1,59 @@
-(error "syntax error, unexpected ')', expecting NUMERAL (line: 3)")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
+unsat
+( _c0
+  _c1
+  _c1282
+  _c1291
+  _c1292
+  _c1293
+  _c1294
+  _c1295
+  _c1296
+  _c1297
+  _c1298
+  _c1299
+  _c1355
+  _c1356
+  _c1357
+  _c1358
+  _c1359
+  _c1360
+  _c1361
+  _c1362
+  _c1363
+  _c1560
+  _c1561
+  _c1562
+  _c1563
+  _c1564
+  _c1565
+  _c1566
+  _c1567
+  _c1568
+  _c1569
+  _c1570
+  _c1571
+  _c1572
+  _c1573
+  _c1574
+  _c1575
+  _c1576
+  _c1577
+  _c1578
+  _c1579
+  _c1580
+  _c1581
+  _c1582
+  _c1583
+  _c1584
+  _c1585
+  _c1586
+  _c594
+  _c602
+  _c714
+  _c715
+  _c716
+  _c717
+  _c718
+  _c719
+  _c720
+  _c721 )

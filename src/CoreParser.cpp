@@ -43,7 +43,7 @@ void CoreParser::extractInitialCore(expr& ast, ArgParser parser, vector<expr>& r
 	for (i = 0; i < initialCore.size(); ++i) {
 		int index = -1;
 		try {
-			index = std::stoi(initialCore[i].substr(1, initialCore[i].size() - 1)); // line should be of the form "C<num>" where C is a char and <num> is an integer between 0 and the number of clauses in the ast
+			index = std::stoi(initialCore[i].substr(initialCore[i].find('c', 0)+1, initialCore[i].size() - 1)); // line should be of the form "C<num>" where C is a char and <num> is an integer between 0 and the number of clauses in the ast
 		}
 		catch (std::invalid_argument& e) {
 			resultingCore.clear();

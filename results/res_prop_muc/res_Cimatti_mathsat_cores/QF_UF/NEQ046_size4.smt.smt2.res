@@ -1,63 +1,91 @@
-(error "syntax error, unexpected ')', expecting NUMERAL (line: 3)")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
-(error "Undeclared type: U")
+unsat
+( _c0
+  _c214
+  _c3822
+  _c3825
+  _c3982
+  _c3984
+  _c3985
+  _c3990
+  _c3993
+  _c3994
+  _c3997
+  _c4000
+  _c4001
+  _c4006
+  _c4010
+  _c4012
+  _c4013
+  _c4014
+  _c4017
+  _c4024
+  _c4026
+  _c4034
+  _c4043
+  _c4044
+  _c4045
+  _c4052
+  _c4053
+  _c4054
+  _c4061
+  _c4062
+  _c4063
+  _c4067
+  _c4463
+  _c4464
+  _c4465
+  _c4466
+  _c4468
+  _c4471
+  _c4474
+  _c4827
+  _c4829
+  _c4830
+  _c4835
+  _c4842
+  _c4875
+  _c4887
+  _c4894
+  _c4897
+  _c4900
+  _c4902
+  _c5049
+  _c5065
+  _c5068
+  _c5077
+  _c5079
+  _c5080
+  _c5099
+  _c5113
+  _c5125
+  _c5257
+  _c5260
+  _c5269
+  _c5289
+  _c5300
+  _c5305
+  _c5307
+  _c5320
+  _c5962
+  _c5965
+  _c5974
+  _c5975
+  _c5976
+  _c5977
+  _c5978
+  _c5979
+  _c5980
+  _c5981
+  _c5983
+  _c6212
+  _c6213
+  _c6214
+  _c6215
+  _c6216
+  _c65
+  _c66
+  _c67
+  _c68
+  _c70
+  _c73
+  _c76 )
