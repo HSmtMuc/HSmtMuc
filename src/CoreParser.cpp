@@ -39,7 +39,7 @@ void CoreParser::extractInitialCore(expr& ast, ArgParser parser, vector<expr>& r
 	vector<string> initialCore;
 	read_core_file(parser.getInputFile(), initialCore);
 	vector<expr> core;
-	int i;
+	unsigned i;
 	for (i = 0; i < initialCore.size(); ++i) {
 		int index = -1;
 		try {

@@ -70,7 +70,7 @@ vector<expr> SucExtractor::extract() {
 		clauses.push_back(core[i]);
 	}
 	vector<expr> lemmas;
-	expr& proof = s.proof();
+	expr proof = s.proof();
 	extractLemmas(proof, lemmas);
 	for(expr lemma : lemmas)
 	statistics.numLemmasExtracted = lemmas.size();
@@ -230,7 +230,8 @@ void SucExtractor::extractLemmas(expr& e, vector<expr>& res) {
 	if (kind >= 1280 && kind < 1320) { //continue only inside proof rules
 		int n = e.num_args();
 		for (int i = 0; i < n; ++i) {
-			extractLemmas(e.arg(i), res);
+			expr argi = e.arg(i);
+			extractLemmas(argi, res);
 		}
 	}
 }

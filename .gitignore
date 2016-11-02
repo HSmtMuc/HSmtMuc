@@ -22,3 +22,6 @@ src/Release/var.nativecodeanalysis.xml
 src/Release/vc.nativecodeanalysis.all.xml
 *.vspx
 *.pdb
+*.exe
+*.suo
+*.ilk

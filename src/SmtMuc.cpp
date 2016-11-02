@@ -25,12 +25,12 @@ int main(int argc, char *argv[]) {
 			return -1;
 		clock_t coreExtractTime = std::clock();
 		expr ast(Utils::get_ctx());
+
 		if (parser.IsSmt2())
 			ast = Utils::parse_smtlib2_file(parser.getInputFile());
 		else
 			ast = Utils::parse_smtlib_file(parser.getInputFile());
 		ast = (parser.IsHighLevel() ? ast : Utils::convert_to_cnf_simplified(ast));
-
 		CoreParser::Statistics coreStats = CoreParser::Statistics();
 		if (parser.isExistingCoreUsed()) {
 			CoreParser coreParse(ast,parser);
@@ -138,6 +138,7 @@ int main(int argc, char *argv[]) {
 		resFile.close();
 	}
 	catch (const HSmtMucException& e) {
+		std::cout << "catch" << std::endl;
 		std::cerr << e.msg() << std::endl;
 		return 0;
 	}

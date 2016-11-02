@@ -24,13 +24,13 @@ public:
 	virtual string msg() const throw()
 	{
 		//return (name + ": error ").c_str();
-		return (name + ": error " + std::to_string(errCode) + " : " + string(std::exception::what()));
+		return name + ": error " + std::to_string(errCode) + " : " + erroMsg;
 	}
 	virtual int exceptionCode() { return expCode; }
 	virtual int errorCode() const { return errCode; }
 	virtual string errorMsg() const { return erroMsg; }
 protected:
-	HSmtMucException(char const* const _Message, int _errCode, int _expCode, string _name) :exception(_Message), expCode(HSMTMUC), erroMsg(_Message), errCode(_errCode), name("HSmtMucException") { }
+	HSmtMucException(char const* const _Message, int _errCode, int _expCode, string _name) :expCode(HSMTMUC), errCode(_errCode),  erroMsg(_Message),  name("HSmtMucException") { }
 private:
 	int expCode;
 	int errCode;

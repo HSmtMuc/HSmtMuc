@@ -5,7 +5,7 @@
 #include "HSmtMucException.h"
 
 ArgParser::ArgParser() : smt2(false), isInsertInit(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1),
-	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), boundRotation(false), logFileName(""), fileName(""), exType(MUC), useExistingCore(false){
+	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), boundRotation(false), fileName(""),  logFileName(""),  exType(MUC), useExistingCore(false){
 }
 
 
@@ -211,7 +211,7 @@ string ArgParser::getLogFileName() const {
 void ArgParser::printUsage() const {
 	std::cout <<
 		"USAGE: smt_unsat_core_extractor [-h] [-smt2] [-smt] [-hlmuc] [-no-rotate] [-eager] [-core-size <num>] [-fth <num>] [-time <num>] [-log <logFileName>] -file <fileName>\n\n"
-		"	Get an smt minimal\small unsat core\n\n"
+		"	Get an smt minimal\\small unsat core\n\n"
 		"	Mandatory arguments:\n"
 		"		-file <fileName>	Input file name\n\n"
 		"	Optional arguments:\n"

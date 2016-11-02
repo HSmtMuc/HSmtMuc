@@ -3,7 +3,7 @@
 using std::stringstream;
 using std::to_string;
 ConstraintManager::ConstraintManager(expr& _formula, bool _isHLC, bool _isInsertUsed) :
-	formula(_formula), isHLC(_isHLC), isInsertUsed(_isInsertUsed),nopAssumption(Utils::get_ctx().bool_const("nopmuc")), currProblemSize(0){
+	formula(_formula), currProblemSize(0), isHLC(_isHLC), isInsertUsed(_isInsertUsed),nopAssumption(Utils::get_ctx().bool_const("nopmuc")){
 	initClauses();
 }
 
@@ -49,7 +49,7 @@ void ConstraintManager::addConstraint(expr constraint) {
 
 	vector<clid> clauses;
 	if (constraint.decl().decl_kind() == Z3_OP_AND) {
-		for (int i = 0; i < constraint.num_args(); ++i) {
+		for (unsigned i = 0; i < constraint.num_args(); ++i) {
 			clauses.push_back(clid2Clause.size());
 			clid2Clause.push_back(constraint.arg(i));
 			clid2Cid.push_back(idx);
@@ -87,7 +87,7 @@ int ConstraintManager::getNumCurrConstraints() {
 
 void ConstraintManager::updateAssumptions(unordered_set<cid>& unmarked, unordered_set<cid>& marked) {
 	for (unsigned currIdx = 0; currIdx < currentAssumptions.size(); ++currIdx) {
-		expr& assumption = currentAssumptions[currIdx];
+		//expr& assumption = currentAssumptions[currIdx];
 		cid id = CurrentIdx2Id[currIdx];
 		if (unmarked.find(id) == unmarked.end() && marked.find(id) == marked.end())
 			currentAssumptions[currIdx] = nopAssumption;
