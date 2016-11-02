@@ -1,0 +1,5 @@
+terminate called after throwing an instance of 'Minisat::OutOfMemoryException'
+
+real	6m6.677s
+user	6m0.557s
+sys	0m7.977s

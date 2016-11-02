@@ -194,28 +194,7 @@ bool Utils::removeChar(char c) {
 	return isspace(c) || c == '(' || c == ')';
 }
 
-//read math-sat core file 
-int Utils::read_core_file(const string& file_name, unordered_set<string>& core) {
-	ifstream coreFile;
-	coreFile.open(file_name + ".smt2.res", std::ios::in);
-	string line;
-	getline(coreFile, line);
-	if (line.find("unsat") == string::npos) {
-		std::cout << "bad file" << endl;
-		coreFile.close();
-		return 1;
-	}
-	while (getline(coreFile, line)) {
-		line.erase(remove_if(line.begin(), line.end(), removeChar), line.end());
-		core.insert(line);
-	}
-	coreFile.close();
-	if (core.empty()) {
-		std::cout << "empty core" << endl;
-		return 1;
-	}
-	return 0;
-}
+
 
 
 // creates formula according to given core

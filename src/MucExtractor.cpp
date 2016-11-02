@@ -8,6 +8,7 @@
 #include "ClauseManager.h"
 #include "FullAssignmentMananger.h"
 #include "PartialAssignmentMananger.h"
+#include "HSmtMucException.h"
 
 #define FORMULA_UPDATE_THRESHOLD 0.25
 #define USE_CORE_THRESHOLD 1
@@ -21,10 +22,7 @@ using std::set_intersection;
 
 MucExtractor::MucExtractor(expr _formula, bool _isHL, RotationInfo _rotationInfo)
 	: formula(_formula), isHL(_isHL), rotationInfo(_rotationInfo), statistics(_isHL, _rotationInfo),
-		cm(_formula, _isHL), am(NULL) {
-
-	//LOG(rotationInfo.rotate);
-
+		cm(_formula, _isHL, false), am(NULL) {
 	if (rotationInfo.flippingThreshold < 0)
 		rotationInfo.flippingThreshold = DEFAULT_FLIPPING_THRESHOLD;
 }
@@ -36,12 +34,11 @@ MucExtractor::~MucExtractor() {
 
 vector<expr> MucExtractor::extract() {
 	solver s(Utils::get_ctx());
-	cm.initClauses(s);
 	statistics.problemSize = cm.getNumConstraints();
-
-	//moved check up for hl experiments
+	for (cid i = 0; i < statistics.problemSize; ++i) {
+		cm.addConstraintToSolver(i, s);
+	}
 	if (statistics.problemSize <= 1) {
-		std::cout << "Trivial UC" << std::endl;
 		vector<expr> res;
 		res.push_back(formula);
 		statistics.problemSize = 1;
@@ -49,19 +46,18 @@ vector<expr> MucExtractor::extract() {
 		statistics.z3InitialCoreSize = 1;
 		return res;
 	}
-	//LOG(statistics.problemSize);
-	statistics.z3AssumtionsInitialSolveTime = std::clock();
 
+	statistics.z3AssumtionsInitialSolveTime = std::clock();
 	check_result isSat;
 	try {
 		vector<expr> assumptions = cm.getCurrAssumptions();
 		isSat = s.check(assumptions.size(), &assumptions[0]);
 	} catch (const exception &e) {
-		throw MucException(string("Initial solving failed: ") + string(e.msg())); 
+		throw MucExtractorException((string("Initial solving failed: ") + string(e.msg())).c_str(), 1); 
 	}
 	statistics.z3AssumtionsInitialSolveTime = std::clock() - statistics.z3AssumtionsInitialSolveTime;
 	if (isSat != unsat) {
-		throw MucException("Problem is not unsat!");
+		throw MucExtractorException("Problem is not unsat!",2);
 	}
 	
 	expr_vector core = s.unsat_core();
@@ -107,10 +103,10 @@ vector<expr> MucExtractor::extract() {
 			else isSat = s.check(assumptions.size(), &assumptions[0]);
 		}
 		catch (const exception &e) {
-			throw MucException(string("Non-initial solving failed: ") + string(e.msg()));
+			throw MucExtractorException((string("Non-initial solving failed: ") + e.msg()).c_str(),3);
 		}
 		if (isSat != sat && isSat != unsat) {
-			throw MucException("Unresolved assertion");
+			throw MucExtractorException("Unresolved assertion",4);
 		}
 
 		if (isSat == sat) {
@@ -210,10 +206,6 @@ void MucExtractor::initUnmarked(const expr_vector& core) {
 }
 
 
-std::ostream & operator<<(std::ostream & out, MucExtractor::MucException const & e) {
-	out << e.msg();
-	return out;
-}
 
 MucExtractor::Statistics& MucExtractor::getStatistics() {
 	return statistics;
@@ -264,7 +256,6 @@ void MucExtractor::Rotate(cid clauseId, unordered_set<cid>& moreMucClauses) {
 		RotationFlipVar(Var2VarIdx[Var(c)], moreMucClauses, flippedVars);
 		return;
 	}
-
 	for (unsigned i = 0; i < c.num_args(); ++i) {
 		RotationFlipVar(Var2VarIdx[Var(c.arg(i))], moreMucClauses, flippedVars);
 	}
@@ -304,7 +295,7 @@ void MucExtractor::HLRotate(cid hlcostraintId, unordered_set<cid>& moreMucClause
 	}
 }
 
-void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucClauses, 
+void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucClauses,
 	unordered_set<vid>& flippedVars, cid unsatClause, int depth, bool isTheorySat) {
 	if (depth >= rotationInfo.flippingThreshold || flippedVars.find(varToFlip) != flippedVars.end()) //don't flip more than FlippingThreshold and avoid flipping loops
 		return;
@@ -312,9 +303,8 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 	am->varFlip(varToFlip);
 	flippedVars.insert(varToFlip);
 
-
-	expr lit = getUnsatLit(varToFlip);
-	vector<clid> affectedClauses = lit2ClauseIds[lit];
+	expr unsatLit = getUnsatLit(varToFlip);
+	vector<clid> affectedClauses = lit2ClauseIds[unsatLit];
 	unsigned unsatClausesNum = 0;
 	cid unsatClsUid = C_UNDEF;
 	if (unsatClause != C_UNDEF) {
@@ -323,7 +313,8 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 			unsatClsUid = unsatClause;
 		}
 	}
-	for (clid id: affectedClauses) {
+	for (clid id : affectedClauses) {
+
 		if (marked.find(id) == marked.end() && unmarked->find(id) == unmarked->end())
 			continue;
 		if (!am->isClauseSat(id)) {
@@ -333,24 +324,25 @@ void MucExtractor::RotationFlipVar(vid varToFlip, unordered_set<int>& moreMucCla
 			unsatClsUid = id;
 		}
 	}
-	if (unsatClausesNum >= 2 || 
-			(!rotationInfo.eager && unsatClausesNum == 1  && marked.find(unsatClsUid) != marked.end()) ||
-			(rotationInfo.eager && unsatClausesNum == 1 && moreMucClauses.find(unsatClsUid) != moreMucClauses.end())) { //more than one clause was flipped or a clause that's already marked was flipped
+	if (unsatClausesNum >= 2 ||
+		(!rotationInfo.eager && unsatClausesNum == 1 && marked.find(unsatClsUid) != marked.end()) ||
+		(rotationInfo.eager && unsatClausesNum == 1 && moreMucClauses.find(unsatClsUid) != moreMucClauses.end())) { //more than one clause was flipped or a clause that's already marked was flipped
 		am->varFlip(varToFlip);
 		flippedVars.erase(varToFlip);
 		return;
 	}
 
 	int nextDepth = depth + 1;
+
 	vector<vid> core;
 	statistics.numTheoryChecks++;
-	//time_t beforeth = std::clock();
 	bool isTconflict = !isTheorySat;
-	if (!(vars[varToFlip].asExpr().is_const() || vars[varToFlip].asExpr().is_var()))
+	//if (0 == unsatClausesNum && affectedClauses.size() > 0) {
+	//}
+	//if (!(vars[varToFlip].asExpr().is_const() || vars[varToFlip].asExpr().is_var())) {
 		isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
-	//time_t afterth = std::clock();
+	//}
 	cnt_no_progress++;
-	//std::cout << "T, " << (afterth - beforeth) << std::endl;
 	if (!isTconflict) {
 		assert(unsatClausesNum == 1);
 		assert(unsatClsUid != C_UNDEF);
@@ -417,14 +409,10 @@ void MucExtractor::HLRotationFlipVar(vid varToFlip, unordered_set<int>& moreMucC
 	int nextDepth = depth + 1;
 	vector<vid> core;
 	statistics.numTheoryChecks++;
-	//time_t beforeth = std::clock();
 	bool isTconflict = !isTheorySat;
 	if (!(vars[varToFlip].asExpr().is_const() || vars[varToFlip].asExpr().is_var()))
 		isTconflict = am->isTheoryConflict(core, nextDepth < rotationInfo.flippingThreshold);
-
-	//time_t afterth = std::clock();
 	cnt_no_progress++;
-	//std::cout << "T, " << (afterth - beforeth) << std::endl;
 	if (!isTconflict) {
 		assert(unsatConstraintsNum == 1);
 		assert(unsatConstraintId != C_UNDEF);

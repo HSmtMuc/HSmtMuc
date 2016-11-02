@@ -1,0 +1,4 @@
+(or (not (= conta_tmp_99 canale_99)) (not bstate5_99))
+bstate5_99
+(= conta_tmp_99 0)
+(= canale_99 0)

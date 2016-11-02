@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="ArgParser.cpp" />
+    <ClCompile Include="AssignmentMananger.cpp" />
+    <ClCompile Include="ClauseManager.cpp" />
+    <ClCompile Include="FullAssignmentMananger.cpp" />
+    <ClCompile Include="InsertSucExtractor.cpp" />
+    <ClCompile Include="MucExtractor.cpp" />
+    <ClCompile Include="PartialAssignmentMananger.cpp" />
+    <ClCompile Include="SmtMuc.cpp" />
+    <ClCompile Include="SucExtractor.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Var.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ArgParser.h" />
+    <ClInclude Include="AssignmentMananger.h" />
+    <ClInclude Include="ClauseManager.h" />
+    <ClInclude Include="FullAssignmentMananger.h" />
+    <ClInclude Include="InsertSucExtractor.h" />
+    <ClInclude Include="MucExtractor.h" />
+    <ClInclude Include="PartialAssignmentMananger.h" />
+    <ClInclude Include="SucExtractor.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="Var.h" />
+    <ClInclude Include="HSmtMucException.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Exceptions">
+      <UniqueIdentifier>{5435910f-390f-4e27-8608-abf5a8b22c38}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

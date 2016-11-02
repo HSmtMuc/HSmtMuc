@@ -2,11 +2,10 @@
 #include "Utils.h"
 #include <iostream>
 #include <climits>
+#include "HSmtMucException.h"
 
-
-ArgParser::ArgParser() : smt2(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1), 
-	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), //default best value
-	boundRotation(false), logFileName(""), fileName(""), extractMUC(true){
+ArgParser::ArgParser() : smt2(false), isInsertInit(false), hl(false), rotate(true), eager(false), flippingThreshold(DEFAULT_FLIPPING_THRESHOLD), timeOut(-1),
+	assignmentBuildingMethod(0), rotatet(DEFAULT_ROTATION_TRIES), boundRotation(false), fileName(""),  logFileName(""),  exType(MUC), useExistingCore(false){
 }
 
 
@@ -14,6 +13,14 @@ ArgParser::~ArgParser()
 {
 }
 
+ExtractType ArgParser::getExtractType() const{
+	return exType;
+
+}
+
+bool ArgParser::isExistingCoreUsed() const {
+	return useExistingCore;
+}
 int ArgParser::parse(int argc, char *argv[]) {
 
 	bool FileProvided = false;
@@ -23,15 +30,30 @@ int ArgParser::parse(int argc, char *argv[]) {
 			printUsage();
 			return -1;
 		}
+
 		else if (arg == "-smt2")
 			smt2 = true;
 		else if (arg == "-smt")
 			smt2 = false;
+		else if (arg == "-use-insert-init")
+			isInsertInit = true;
 		else if (arg == "-hlmuc")
 			hl = true;
 		else if (arg == "-core-not-min") {
-			extractMUC = false;
-
+			if(exType == HYB){
+				std::cout << "error in flag " << arg << "\n\n" << std::endl;
+				printUsage();
+				return -1;
+			}
+			exType = SUC;
+		}
+		else if (arg == "-use-propos-muc") {
+			if (exType == SUC) {
+				std::cout << "error in flag " << arg << "\n\n" << std::endl;
+				printUsage();
+				return -1;
+			}
+			exType = HYB;
 		}
 		else if (arg == "-no-rotate")
 			rotate = false;
@@ -97,6 +119,11 @@ int ArgParser::parse(int argc, char *argv[]) {
 				}
 			}
 		}
+
+		else if (arg == "-use-known-core") {
+			useExistingCore = true;
+		}
+
 		else if (arg == "-log") {
 			i++;
 			if (i < argc)
@@ -176,15 +203,15 @@ string ArgParser::getLogFileName() const {
 }
 
 
-bool ArgParser::isExtractMUC() {
-	return extractMUC;
-}
+//bool ArgParser::isExtractMUC() {
+//	return extractMUC;
+//}
 
 
 void ArgParser::printUsage() const {
 	std::cout <<
 		"USAGE: smt_unsat_core_extractor [-h] [-smt2] [-smt] [-hlmuc] [-no-rotate] [-eager] [-core-size <num>] [-fth <num>] [-time <num>] [-log <logFileName>] -file <fileName>\n\n"
-		"	Get an smt minimal\small unsat core\n\n"
+		"	Get an smt minimal\\small unsat core\n\n"
 		"	Mandatory arguments:\n"
 		"		-file <fileName>	Input file name\n\n"
 		"	Optional arguments:\n"
@@ -193,17 +220,23 @@ void ArgParser::printUsage() const {
 		"		-smt				Use parser for SMT-LIB input format\n"
 		"		-hlmuc				Use high-level constraints instead of translating to CNF (DEFAULT NOT USED) (Only relevent when -core-no-min off)\n"
 		"		-no-rotate			Don't use Theory Rotation (Only relevent when -core-no-min is used)\n"
+		"		-use-insert-init	Do an intial insertion-based iteration to try and shrink starting core (Not yet implemented)"
 		"		-eager				Use eager rotation (DEFAULT NOT USED)\n"
-		"		-boundRot			Use exponential smoothing as a rotation bounding strategy. (DEFAULT NOT USED)\n "
-		"		-rotatet <num>		Limit to <num> the number of consecutive rotation failures before stopping all rotation attempts. Defualt: " << DEFAULT_ROTATION_TRIES  << " (Only relevent when -core-not-min off)\n"
-		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default)\n"
-		"		-fth <num>			Set flipping threshold (during rotation) to num. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
+		"		-core-not-min		Extracted unsat core may be not minimal (DEFAULT NOT USED, i.e. extract miniaml unsat core by default), incompatible  with -use-propos-muc flag\n"
+		"		-use-propos-muc		Use propositional MUC extraction (SUC) before extracting the MUC, incompatible  with -core-not-min flag\n"
+		" 		-boundRot			Use exponential smoothing strategy when bounding rotation  (Only relevent when -core-not-min off)\n"
+		"		-rotatet <num>		Set rotation tries limit to <num>. Default: " << DEFAULT_ROTATION_TRIES << " (Only relevent when -core-not-min off)\n"
+		"		-fth <num>			Set flipping threshold (during rotation) to <num>. Default: "<< DEFAULT_FLIPPING_THRESHOLD << " (Only relevent when -core-not-min off)\n"
 		//"		-abm <num>			Set assignment building method (during rotation) to num. Default: " << DEFAULT_ASSIGNMENT_BUILDING <<
+		"		-use-known-core		Use initial core as specefied in <filename>.smt2.res input core file (placed in the same location as <filename>)"
 		"		-time <num>			Set z3 time-out to num (milliseconds). Default: z3 default (Unused)\n"
 		"		-log <logFileName>	Direct log printing to file. Default: standard output." << std::endl;
 }
-
+bool ArgParser::IsInsertInit() {
+	return isInsertInit;
+}
 void ArgParser::missingFile() const {
 	std::cout <<
 		"ERROR: Missing input file argument\n\n" << std::endl;
 }
+

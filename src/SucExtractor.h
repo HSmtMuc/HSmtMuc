@@ -20,13 +20,13 @@ using std::unordered_set;
 
 class SucExtractor {
 public:
-	class SucException {
-		string m_msg;
-	public:
-		SucException(const string& msg) :m_msg(msg) {}
-		string msg() const { return m_msg; }
-		friend std::ostream & operator<<(std::ostream & out, SucException const & e);
-	};
+	//class SucException {
+	//	string m_msg;
+	//public:
+	//	SucException(const string& msg) :m_msg(msg) {}
+	//	string msg() const { return m_msg; }
+	//	friend std::ostream & operator<<(std::ostream & out, SucException const & e);
+	//};
 
 	struct Statistics {
 		int proposMucRetVal;

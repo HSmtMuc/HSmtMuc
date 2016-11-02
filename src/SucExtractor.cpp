@@ -1,7 +1,7 @@
 #include "SucExtractor.h"
 #include <ctime>
 #include <iostream>
-
+#include "HSmtMucException.h"
 
 
 using std::stringstream;
@@ -11,22 +11,9 @@ using std::ifstream;
 string hmuc = "hmuc.exe";
 string cnfFile;
 string hmucResFile;
-//#include <windows.h>
-//#include <string>
-//
-//string ExePath() {
-//	char buffer[MAX_PATH];
-//	GetModuleFileName(NULL, buffer, MAX_PATH);
-//	string::size_type pos = string(buffer).find_last_of("\\/");
-//	return string(buffer).substr(0, pos);
-//}
 
-
-
-
-
-SucExtractor::SucExtractor(expr _formula, bool isHL, string filename) : formula(_formula), cm(formula, isHL), statistics(isHL) {
-	cnfFile = filename + ".cnf";
+SucExtractor::SucExtractor(expr _formula, bool _isHL, string _filename) : formula(_formula), cm(formula, _isHL, false), statistics(_isHL) {
+	cnfFile = _filename + ".cnf";
 	hmucResFile = cnfFile + ".core";
 
 }
@@ -35,9 +22,10 @@ vector<expr> SucExtractor::extract() {
 	statistics.totalTime = std::clock();
 
 	solver s(Utils::get_ctx());
-	cm.initClauses(s);
 	statistics.problemSize = cm.getNumConstraints();
-
+	for (cid i = 0; i < statistics.problemSize; ++i) {
+		cm.addConstraintToSolver(i, s);
+	}
 	statistics.z3AssumtionsInitialSolveTime = std::clock();
 	check_result isSat;
 	try {
@@ -47,11 +35,11 @@ vector<expr> SucExtractor::extract() {
 
 	catch (const exception &e) {
 		
-		throw SucException(string("Initial solving failed: ") + string(e.msg()));
+		throw SucExtractorException((string("Initial solving failed: ") + e.msg()).c_str(),1);
 	}
 	statistics.z3AssumtionsInitialSolveTime = std::clock() - statistics.z3AssumtionsInitialSolveTime;
 	if (isSat != unsat) {
-		throw SucException("Problem is not unsat!");
+		throw SucExtractorException("Problem is not unsat!",2);
 	}
 
 	if (cm.getNumConstraints() <= 1) {
@@ -82,7 +70,7 @@ vector<expr> SucExtractor::extract() {
 		clauses.push_back(core[i]);
 	}
 	vector<expr> lemmas;
-	expr& proof = s.proof();
+	expr proof = s.proof();
 	extractLemmas(proof, lemmas);
 	for(expr lemma : lemmas)
 	statistics.numLemmasExtracted = lemmas.size();
@@ -181,8 +169,9 @@ void SucExtractor::createCNFFile(const vector<expr>& clauses) {
 }
 vector<expr> SucExtractor::runSatMUC(const vector<expr>& originalClauses, Statistics& stat) {
 	stat.propositionalExtractionTime = std::clock();
+	//std::cout << cnfFile << std::endl;
 	//std::cout << string(hmuc + " -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str() << std::endl;
-	int hmucRes = std::system(string(hmuc + " -muc-print-sol " + cnfFile + ">" + hmucResFile).c_str());
+	int hmucRes = std::system(string(hmuc + " -muc-print-sol \"" + cnfFile + "\"> \"" + hmucResFile+"\"").c_str());
 	stat.proposMucRetVal = hmucRes;
 	stat.propositionalExtractionTime = std::clock() - stat.propositionalExtractionTime;
 	return parseHmucRes(originalClauses);
@@ -241,7 +230,8 @@ void SucExtractor::extractLemmas(expr& e, vector<expr>& res) {
 	if (kind >= 1280 && kind < 1320) { //continue only inside proof rules
 		int n = e.num_args();
 		for (int i = 0; i < n; ++i) {
-			extractLemmas(e.arg(i), res);
+			expr argi = e.arg(i);
+			extractLemmas(argi, res);
 		}
 	}
 }
@@ -332,20 +322,16 @@ SucExtractor::Statistics& SucExtractor::getStatistics() {
 	return statistics;
 }
 
-std::ostream & operator<<(std::ostream & out, SucExtractor::SucException const & e) {
-	out << e.msg();
-	return out;
-}
 
 std::ostream & operator<<(std::ostream & out, SucExtractor::Statistics const & s) {
 	out <<
-		"### proposMucRetVal " << s.proposMucRetVal << std::endl <<
-		"### problemSize " << s.problemSize << std::endl <<
-		"### initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
-		"### smallCoreSize " << s.smallCoreSize << std::endl <<
-		"### z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime << std::endl <<
-		"### totalTime " << s.totalTime << std::endl <<
-		"### numLemmasExtracted " << s.numLemmasExtracted << std::endl <<
-		"### propositionalExtractionTime " << s.propositionalExtractionTime;	
+		"### suc_proposMucRetVal " << s.proposMucRetVal<< std::endl <<
+		"### suc_problemSize " << s.problemSize << std::endl <<
+		"### suc_initialZ3CoreSize " << s.z3InitialCoreSize << std::endl <<
+		"### suc_smallCoreSize " << s.smallCoreSize << std::endl <<
+		"### suc_z3AssumtionsInitialSolveTime " << s.z3AssumtionsInitialSolveTime / (double)(CLOCKS_PER_SEC) << std::endl <<
+		"### suc_numLemmasExtracted " << s.numLemmasExtracted << std::endl <<
+		"### suc_propositionalExtractionTime " << s.propositionalExtractionTime / (double)(CLOCKS_PER_SEC) << std::endl;
+		
 	return out;
 }
