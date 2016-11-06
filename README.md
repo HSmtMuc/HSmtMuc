@@ -18,8 +18,8 @@ Windows
 
 Linux
 - If z3 not built, follow the build instructions, using https://github.com/Z3Prover/z3#building-z3-using-make-and-gccclang
-- Add "<z3-master dir>\build" directory to the PATH and LD_LIBRARY_PATH variables.
-- Add "<z3-master dir>\scripts" directory to the PYTHONPATH variable.
+- Add "<z3-master dir>/build" directory to the PATH and LD_LIBRARY_PATH variables.
+- Add "<z3-master dir>/scripts" directory to the PYTHONPATH variable.
 - From the src folder, run make
 
 Running:
