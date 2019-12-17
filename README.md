@@ -10,10 +10,16 @@ Requierments:
 Installation:
 
 Windows
-- If z3 not built, follow the build instructions, using https://github.com/Z3Prover/z3#building-z3-on-windows-using-visual-studio-command-prompt
-- Add "<z3-master dir>\build" directory to the PATH and PYTHONPATH windows environment variables.
-- From the scripts folder, run "python HSMTExtract_setup.py <z3-master dir>" 
-- Open HSmtMuc.sln using Visual Studio 2015 and build the project using x86 configuration
+- Download z3 ver. 4.4.2 (if you do not have access to it, you can download our own 
+precompiled version from https://drive.google.com/open?id=15IX6Jyvy-aqW0_oPGqo5YzcR0fow63I1)
+- best is to extract the z3 folder directly to c:\. 
+- Open HSmtMuc.sln using Visual Studio 2017 or newer and build the project using x86 configuration
+- If you chose earlier to put z3 in a folder other than c:\, then you need to change the path in 
+several locations inside the project properties of hsmtmuc in order for it to compile. 
+Specifically, in 
+	-- configuration properties / VC++ directories, 
+	-- C/C++ / General/ Additional Include Directories,
+	-- Linker / Input / Additional dependencies.
 
 
 Linux

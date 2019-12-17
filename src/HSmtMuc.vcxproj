@@ -70,13 +70,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>c:\z3\z3-master\src\api\c++;c:\z3\z3-master\src\api;$(IncludePath)</IncludePath>
+    <IncludePath>c:\z3\z3-master\src\api;$(IncludePath)</IncludePath>
     <ExecutablePath>c:\z3\z3-master\build;$(ExecutablePath)</ExecutablePath>
     <LibraryPath>c:\z3\z3-master\build;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ExecutablePath>c:\z3\z3-master\build;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>c:\z3\z3-master\src\api\c++;c:\z3\z3-master\src\api;$(IncludePath)</IncludePath>
+    <IncludePath>c:\z3\z3-master\src\api;$(IncludePath)</IncludePath>
     <LibraryPath>c:\z3\z3-master\build;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -84,6 +84,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>c:\z3\z3-master\src\api\c++;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,6 +106,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>c:\z3\z3-master\src\api\c++;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
