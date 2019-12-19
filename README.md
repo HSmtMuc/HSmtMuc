@@ -17,8 +17,11 @@ precompiled version from https://drive.google.com/open?id=15IX6Jyvy-aqW0_oPGqo5Y
 - If you chose earlier to put z3 in a folder other than c:\, then you need to change the path in 
 several locations inside the project properties of hsmtmuc in order for it to compile. 
 Specifically, in 
+
 	-- configuration properties / VC++ directories, 
+	
 	-- C/C++ / General/ Additional Include Directories,
+	
 	-- Linker / Input / Additional dependencies.
 
 
@@ -30,4 +33,4 @@ Linux
 
 Running:
 - Argument list can be accessed using the -h or --help argument
-
+- The ouput MUC appears in the input file's folder with an extension ".muc".
