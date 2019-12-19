@@ -32,5 +32,5 @@ Linux
 - From the src folder, run make
 
 Running:
-- The argument list can be accessed using the -h or --help argument. For a basic run you just need the arguments "-file <input-file-name>".
+- The argument list can be accessed using the -h or --help argument. For a basic run you just need the arguments "-file \<input-file-name\>".
 - The ouput MUC appears in the input file's folder with an extension ".muc".
